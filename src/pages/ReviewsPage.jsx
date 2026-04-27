@@ -4,7 +4,7 @@ import '../pages-styles/ReviewsPage.css'
 const SAMPLE_REVIEWS = [
   { id: 1, courseName: 'プログラミング基礎', teacher: '田中 太郎', faculty: 'システムデザイン工学部', stars: 4, difficulty: 'まぁ楽勝', comment: '先生の説明がわかりやすく、課題も適度な難易度でした。', year: 2026, semester: '前期', date: '2026-04-15', likes: 23 },
   { id: 2, courseName: '線形代数I', teacher: '佐藤 花子', faculty: '理工学部', stars: 2, difficulty: 'やや厳しい', comment: '証明問題が多く、テスト範囲が広い。しっかり勉強する必要あり。', year: 2026, semester: '前期', date: '2026-04-10', likes: 15 },
-  { id: 3, courseName: '英語コミュニケーション', teacher: 'Smith John', faculty: '未来科学部', stars: 5, difficulty: 'かなり楽勝', comment: '出席とレポートだけで単位が取れます。おすすめ。', year: 2025, semester: '後期', date: '2026-03-20', likes: 42 },
+  { id: 3, courseName: '英語コミュニケーション1A', teacher: 'Smith John', faculty: '未来科学部', stars: 5, difficulty: 'かなり楽勝', comment: '出席とレポートだけで単位が取れます。おすすめ。', year: 2025, semester: '後期', date: '2026-03-20', likes: 42 },
   { id: 4, courseName: '電気回路理論', teacher: '山田 一郎', faculty: '工学部', stars: 1, difficulty: 'かなり厳しい', comment: 'テストがかなり難しい。過去問が役に立たない。覚悟が必要。', year: 2025, semester: '後期', date: '2026-02-28', likes: 31 },
   { id: 5, courseName: 'データベース論', teacher: '鈴木 次郎', faculty: 'システムデザイン工学部', stars: 3, difficulty: '普通', comment: 'SQL実習があるので実践的。テストは持ち込み可。', year: 2026, semester: '前期', date: '2026-04-05', likes: 18 },
 ]
