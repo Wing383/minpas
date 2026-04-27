@@ -1,11 +1,11 @@
 import { useState } from 'react'
 
 const DIFFICULTY_OPTIONS = [
-  { stars: 1, label: 'かなり厳しい' },
-  { stars: 2, label: 'やや厳しい' },
+  { stars: 1, label: 'かなり難しい' },
+  { stars: 2, label: '難しい' },
   { stars: 3, label: '普通' },
-  { stars: 4, label: 'まぁ楽勝' },
-  { stars: 5, label: 'かなり楽勝' },
+  { stars: 4, label: '簡単' },
+  { stars: 5, label: 'かなり簡単' },
 ]
 
 const FACULTIES = [
