@@ -1,0 +1,251 @@
+/* ===== Settings Page ===== */
+.settings-page {
+  flex: 1;
+  padding: 24px 20px 0;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.settings-container {
+  width: 100%;
+}
+
+.settings-page-header {
+  margin-bottom: 28px;
+}
+
+.settings-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+
+.settings-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Sections */
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.settings-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+.settings-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* Account Info */
+.settings-account-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+}
+
+.settings-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-light);
+}
+
+.settings-account-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-account-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.settings-account-email {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.settings-logout-btn {
+  padding: 8px 16px;
+  border: 1.5px solid #e53935;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: #e53935;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.settings-logout-btn:hover {
+  background: #e53935;
+  color: white;
+}
+
+/* Login Prompt */
+.settings-login-prompt {
+  padding: 28px 20px;
+  text-align: center;
+}
+
+.settings-login-prompt p {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+
+.settings-login-btn {
+  padding: 10px 28px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all var(--transition);
+}
+
+.settings-login-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 121, 107, 0.3);
+}
+
+/* Settings Rows */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  gap: 12px;
+}
+
+.settings-row--link {
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.settings-row--link:hover {
+  background: var(--bg);
+}
+
+.settings-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-row-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.settings-row-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.settings-row-arrow {
+  font-size: 20px;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+.settings-version {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.settings-divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 0 20px;
+}
+
+/* Toggle Switch */
+.settings-toggle {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.settings-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.settings-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--border);
+  border-radius: 26px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settings-toggle-slider::before {
+  content: '';
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.settings-toggle input:checked+.settings-toggle-slider {
+  background: var(--primary);
+}
+
+.settings-toggle input:checked+.settings-toggle-slider::before {
+  transform: translateX(22px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .settings-page {
+    padding: 16px 12px 0;
+  }
+
+  .settings-account-info {
+    flex-wrap: wrap;
+  }
+
+  .settings-logout-btn {
+    width: 100%;
+    text-align: center;
+    margin-top: 4px;
+  }
+}
