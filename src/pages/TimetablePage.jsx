@@ -2,7 +2,7 @@ import { useState } from 'react'
 import '../pages-styles/TimetablePage.css'
 
 const DAYS = ['月', '火', '水', '木', '金']
-const PERIODS = [1, 2, 3, 4, 5]
+const PERIODS = [1, 2, 3, 4, 4]
 const PERIOD_TIMES = {
   1: '9:00 - 10:30',
   2: '10:40 - 12:10',
