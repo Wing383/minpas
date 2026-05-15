@@ -68,3 +68,173 @@ button {
 input {
   font-family: inherit;
 }
+
+/* ===== Autocomplete ===== */
+.autocomplete-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  z-index: 100;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.autocomplete-item {
+  padding: 9px 14px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.autocomplete-item:hover,
+.autocomplete-item--active {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+/* ===== Popular Courses Section ===== */
+.popular-section {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px 24px;
+}
+.popular-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.popular-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 科目カード */
+.course-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid var(--border-light);
+}
+.course-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light);
+}
+.course-card-left {
+  flex-shrink: 0;
+}
+.course-card-badge {
+  width: 36px;
+  height: 36px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+}
+.course-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.course-card-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.course-card-count {
+  color: var(--primary);
+  font-weight: 600;
+  margin-left: 4px;
+}
+.course-card-teacher {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-bottom: 3px;
+}
+.course-card-comment {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 8px;
+}
+.course-card-scores {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.course-card-score-tag {
+  font-size: 11px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  padding: 1px 7px;
+  border-radius: 99px;
+  font-weight: 600;
+}
+.course-card-stars {
+  display: flex;
+  gap: 1px;
+}
+.cs-star {
+  font-size: 14px;
+  color: var(--border);
+}
+.cs-star--on {
+  color: var(--star-color);
+}
+.course-card-arrow {
+  font-size: 22px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* 検索結果件数 */
+.search-result-count {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 2px 10px;
+  border-radius: 99px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* 検索結果なし */
+.search-empty {
+  background: var(--bg-white);
+  border-radius: var(--radius-xl);
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--text-light);
+  box-shadow: var(--shadow-sm);
+}
+.search-empty-icon { font-size: 48px; margin-bottom: 12px; }
+.search-empty-sub { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+
+

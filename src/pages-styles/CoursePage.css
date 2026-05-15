@@ -1,0 +1,216 @@
+.cp-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 16px 100px;
+}
+
+/* パンくず */
+.cp-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+.cp-breadcrumb a {
+  color: var(--primary);
+}
+.cp-breadcrumb-sep {
+  color: var(--text-muted);
+}
+
+/* ヘッダーカード */
+.cp-header-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.cp-badge {
+  min-width: 44px;
+  height: 44px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.cp-header-info {
+  flex: 1;
+}
+.cp-course-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.cp-teacher,
+.cp-faculty {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 2px;
+}
+.cp-review-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.cp-review-num {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+.cp-review-unit {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* 平均スコア */
+.cp-score-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.cp-score-title,
+.cp-reviews-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+/* 星 */
+.cp-star-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.cp-star-label {
+  font-size: 12px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 600;
+  min-width: 44px;
+  text-align: center;
+}
+.cp-stars {
+  display: flex;
+  gap: 2px;
+}
+.cp-star {
+  color: var(--border);
+  font-size: 18px;
+}
+.cp-star--on {
+  color: var(--star-color);
+}
+.cp-star-val {
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+/* 口コミ */
+.cp-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cp-review-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
+  border-left: 4px solid var(--primary);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.cp-review-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.cp-review-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.cp-review-num-badge {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.cp-review-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cp-review-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.cp-review-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Not found */
+.cp-not-found {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-light);
+}
+.cp-back-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* 複数担当者 */
+.cp-teachers-all {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* 口コミなし */
+.cp-no-reviews {
+  background: var(--bg-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-light);
+}
+.cp-no-reviews-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+.cp-no-reviews-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}

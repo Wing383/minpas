@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage.jsx'
 import TimetablePage from './pages/TimetablePage.jsx'
 import ReviewsPage from './pages/ReviewsPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
+import CoursePage from './components/CoursePage.jsx'
 import BottomNav from './components/BottomNav.jsx'
 import './App.css'
 
@@ -96,6 +97,7 @@ function App() {
           <Route path="/timetable" element={<TimetablePage />} />
           <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/course/:id" element={<CoursePage />} />
         </Routes>
 
         <BottomNav />
