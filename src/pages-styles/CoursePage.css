@@ -214,3 +214,140 @@
   color: var(--text-muted);
   margin-top: 6px;
 }
+
+/* ローディング */
+.cp-loading {
+  text-align: center;
+  padding: 32px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ===== 投稿フォームセクション ===== */
+.review-form-section {
+  background: var(--bg-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+/* ログイン促進 */
+.review-login-prompt {
+  text-align: center;
+  padding: 24px 0 8px;
+  color: var(--text-light);
+  font-size: 14px;
+}
+.review-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.review-login-btn:hover { box-shadow: var(--shadow-md); }
+
+/* フォーム */
+.review-form { display: flex; flex-direction: column; gap: 14px; }
+.review-form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.review-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 120px;
+}
+.review-form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+.review-form-select {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--bg-white);
+  color: var(--text);
+  outline: none;
+}
+.review-form-select:focus { border-color: var(--primary); }
+
+.review-form-textarea {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  resize: vertical;
+  outline: none;
+  line-height: 1.6;
+}
+.review-form-textarea:focus { border-color: var(--primary); }
+.review-form-charcount {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* 星選択ボタン */
+.star-selector { display: flex; gap: 4px; }
+.star-btn {
+  font-size: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--border);
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s, transform 0.1s;
+}
+.star-btn:hover, .star-btn--on { color: var(--star-color); }
+.star-btn:active { transform: scale(1.2); }
+
+/* エラー・成功 */
+.review-form-error {
+  color: #e53935;
+  font-size: 13px;
+  background: #ffebee;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+}
+.review-form-success {
+  color: #2e7d32;
+  font-size: 13px;
+  background: #e8f5e9;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+}
+
+/* 投稿ボタン */
+.review-submit-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+.review-submit-btn:hover { background: var(--primary-dark); }
+.review-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
