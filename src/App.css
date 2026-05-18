@@ -879,3 +879,38 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== Home Review Link Button ===== */
+.home-review-link-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.home-review-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  border-radius: 50px;
+  border: 1.5px solid var(--primary);
+  background: var(--bg-white);
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all var(--transition);
+}
+
+.home-review-link-btn:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 600px) {
+  .home-review-link-btn {
+    width: 100%;
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const DIFFICULTY_OPTIONS = [
   { stars: 1, label: 'かなり厳しい' },
@@ -240,6 +241,11 @@ function HomePage() {
                 <button id="btn-search" className="search-btn" onClick={handleSearch}>
                   検索結果を見る
                 </button>
+              </div>
+              <div className="home-review-link-wrapper">
+                <Link to="/reviews" className="home-review-link-btn">
+                  現代マスコミ論の口コミを投稿する
+                </Link>
               </div>
             </div>
           </div>
