@@ -14,6 +14,7 @@ const PERIOD_TIMES = {
 const SAMPLE_COLORS = ['#AB47BC', '#42A5F5', '#EF5350', '#66BB6A', '#FFA726', '#5C6BC0', '#26A69A']
 
 const COURSE_MASTER = [
+  { day: '月', period: 2, name: '情報数学Ⅰ', color: '#66BB6A', dept: ['d2'] },
   { day: '月', period: 2, name: '情報セキュリティ概論', color: '#AB47BC', dept: ['d1', 'd2'] },
   { day: '月', period: 3, name: '計算量と暗号', color: '#42A5F5', dept: ['d1', 'd2'] },
   { day: '月', period: 4, name: '情報システム総合演習', color: '#EF5350', dept: ['d1', 'd2'] },
