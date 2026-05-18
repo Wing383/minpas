@@ -1,11 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import '../pages-styles/SettingsPage.css'
 
 function SettingsPage() {
   const { user, isLoggedIn, loginWithGoogle, logout } = useAuth()
-  const [darkMode, setDarkMode] = useState(false)
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true'
+  })
   const [notifications, setNotifications] = useState(true)
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', darkMode)
+    if (darkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark')
+    } else {
+      document.documentElement.removeAttribute('data-theme')
+    }
+  }, [darkMode])
 
   return (
     <main className="settings-page">
