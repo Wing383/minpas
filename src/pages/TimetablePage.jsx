@@ -11,29 +11,91 @@ const PERIOD_TIMES = {
   5: '17:15 - 18:45',
 }
 
-const SAMPLE_COLORS = ['#AB47BC', '#42A5F5', '#EF5350', '#66BB6A', '#FFA726', '#5C6BC0', '#26A69A']
+const SAMPLE_COLORS = ['#AB47BC', '#42A5F5', '#EF5350', '#66BB6A', '#FFA726', '#5C6BC0', '#26A69A', '#EC407A', '#26C6DA', '#78909C']
 
+// ★ 前期（spring）と後期（fall）の全授業マスターデータ
 const COURSE_MASTER = [
-  { day: '月', period: 2, name: '情報セキュリティ概論', color: '#AB47BC', dept: ['d1', 'd2'] },
-  { day: '月', period: 3, name: '計算量と暗号', color: '#42A5F5', dept: ['d1', 'd2'] },
-  { day: '月', period: 4, name: '情報システム総合演習', color: '#EF5350', dept: ['d1', 'd2'] },
-  { day: '水', period: 1, name: '情報産業論', color: '#66BB6A', dept: ['RD'] },
-  { day: '水', period: 2, name: '多変量解析', color: '#42A5F5', dept: ['d2', 'd3', 'd4'] },
-  { day: '水', period: 3, name: '人間関係の心理(鳩山C)', color: '#FFA726', dept: ['all'] },
-  { day: '水', period: 4, name: 'アジア文化研究', color: '#FFA726', dept: ['all'] },
-  { day: '水', period: 5, name: 'オブジェクト指向', color: '#42A5F5', dept: ['d1', 'd2', 'd3'] },
-  { day: '木', period: 4, name: '深層学習', color: '#42A5F5', dept: ['d1', 'd2', 'd3'] },
-  { day: '金', period: 2, name: '数理とデザイン', color: '#42A5F5', dept: ['d1', 'd3', 'd4'] },
-  { day: '金', period: 3, name: '数理最適化入門', color: '#AB47BC', dept: ['d1', 'd2', 'd3'] },
-  { day: '金', period: 4, name: '統計学Ⅰ', color: '#42A5F5', dept: ['d1', 'd2', 'd3'] },
+  // ================= 前期（spring）の授業 =================
+  { day: '月', period: 2, name: '現代マスコミ論', color: '#FFA726', semester: 'spring' },
+  { day: '月', period: 2, name: '情報セキュリティ概論', color: '#AB47BC', semester: 'spring' },
+  { day: '月', period: 2, name: '動的システム', color: '#42A5F5', semester: 'spring' },
+  { day: '月', period: 2, name: '情報数学Ⅰ', color: '#66BB6A', semester: 'spring' },
+  { day: '月', period: 3, name: '情報数学Ⅱ', color: '#66BB6A', semester: 'spring' },
+  { day: '月', period: 3, name: '計算量と暗号', color: '#42A5F5', semester: 'spring' },
+  { day: '月', period: 3, name: 'インタラクティブデザイン論', color: '#EC407A', semester: 'spring' },
+  { day: '月', period: 3, name: '社会心理学', color: '#FFA726', semester: 'spring' },
+  { day: '月', period: 3, name: '認知心理学', color: '#FFA726', semester: 'spring' },
+  { day: '月', period: 4, name: '情報システム総合演習', color: '#EF5350', semester: 'spring' },
+
+  { day: '火', period: 2, name: 'プログラミング言語論', color: '#42A5F5', semester: 'spring' },
+  { day: '火', period: 2, name: 'デザインリサーチ', color: '#EC407A', semester: 'spring' },
+  { day: '火', period: 2, name: 'Webデザイン', color: '#EC407A', semester: 'spring' },
+  { day: '火', period: 3, name: '環境心理学', color: '#FFA726', semester: 'spring' },
+  { day: '火', period: 3, name: '技術者倫理', color: '#78909C', semester: 'spring' },
+  { day: '火', period: 4, name: 'ソフトウェアエンジニアリング', color: '#42A5F5', semester: 'spring' },
+  { day: '火', period: 4, name: 'ヒューマンインタフェース', color: '#EC407A', semester: 'spring' },
+  { day: '火', period: 5, name: '知財と法規', color: '#78909C', semester: 'spring' },
+
+  { day: '水', period: 1, name: '情報産業論', color: '#66BB6A', semester: 'spring' },
+  { day: '水', period: 2, name: '多変量解析', color: '#42A5F5', semester: 'spring' },
+  { day: '水', period: 2, name: 'メディア処理概論', color: '#EC407A', semester: 'spring' },
+  { day: '水', period: 3, name: '人間関係の心理(鳩山C)', color: '#FFA726', semester: 'spring' },
+  { day: '水', period: 3, name: 'モバイルアプリ開発', color: '#42A5F5', semester: 'spring' },
+  { day: '水', period: 3, name: '情報デザイン基礎演習', color: '#EC407A', semester: 'spring' },
+  { day: '水', period: 4, name: 'アジア文化研究', color: '#FFA726', semester: 'spring' },
+  { day: '水', period: 4, name: 'コンピュータネットワーク', color: '#AB47BC', semester: 'spring' },
+  { day: '水', period: 4, name: 'Webデザイン演習', color: '#EC407A', semester: 'spring' },
+  { day: '水', period: 5, name: 'オブジェクト指向', color: '#42A5F5', semester: 'spring' },
+
+  { day: '木', period: 2, name: 'オペレーティングシステム', color: '#AB47BC', semester: 'spring' },
+  { day: '木', period: 2, name: 'ネットワークセキュリティ', color: '#AB47BC', semester: 'spring' },
+  { day: '木', period: 2, name: '音響メディア論', color: '#EC407A', semester: 'spring' },
+  { day: '木', period: 3, name: 'データベース構成論', color: '#AB47BC', semester: 'spring' },
+  { day: '木', period: 3, name: '情報バリアフリー', color: '#EC407A', semester: 'spring' },
+  { day: '木', period: 3, name: '社会調査法', color: '#26C6DA', semester: 'spring' },
+  { day: '木', period: 4, name: '深層学習', color: '#42A5F5', semester: 'spring' },
+  { day: '木', period: 4, name: '情報デザイン演習Ⅰ', color: '#EC407A', semester: 'spring' },
+
+  { day: '金', period: 2, name: '数理とデザイン', color: '#42A5F5', semester: 'spring' },
+  { day: '金', period: 2, name: '人間計測法', color: '#26C6DA', semester: 'spring' },
+  { day: '金', period: 2, name: '実験心理・行動科学', color: '#FFA726', semester: 'spring' },
+  { day: '金', period: 3, name: '基礎確率論', color: '#66BB6A', semester: 'spring' },
+  { day: '金', period: 3, name: '数理最適化入門', color: '#AB47BC', semester: 'spring' },
+  { day: '金', period: 4, name: '統計学Ⅰ', color: '#42A5F5', semester: 'spring' },
+  { day: '金', period: 4, name: 'コンピュータプログラミングⅠ・同演習', color: '#42A5F5', semester: 'spring' },
+  { day: '金', period: 5, name: 'コンピュータプログラミングⅠ・同演習', color: '#42A5F5', semester: 'spring' },
+
+  // ================= 後期（fall）の授業 =================
+  { day: '月', period: 3, name: '人工知能プログラミングⅡ', color: '#42A5F5', semester: 'fall' },
+  { day: '月', period: 3, name: '生成人工知能', color: '#AB47BC', semester: 'fall' },
+  { day: '火', period: 1, name: '教育システムデザイン論', color: '#EC407A', semester: 'fall' },
+  { day: '水', period: 1, name: 'ゲームプログラミングⅡ', color: '#42A5F5', semester: 'fall' },
+  { day: '水', period: 2, name: '統計学Ⅱ', color: '#66BB6A', semester: 'fall' },
+  { day: '水', period: 3, name: 'コンピュータグラフィックス', color: '#EC407A', semester: 'fall' },
+  { day: '水', period: 4, name: '組み込みシステム', color: '#5C6BC0', semester: 'fall' },
+  { day: '水', period: 4, name: '映像制作論', color: '#FFA726', semester: 'fall' },
+  { day: '木', period: 2, name: '音楽構造論', color: '#FFA726', semester: 'fall' },
+  { day: '木', period: 2, name: 'アルゴリズムとデータ構造Ⅱ', color: '#42A5F5', semester: 'fall' },
+  { day: '木', period: 3, name: '分散システム', color: '#AB47BC', semester: 'fall' },
+  { day: '木', period: 3, name: '3次元インタラクション', color: '#EC407A', semester: 'fall' },
+  { day: '木', period: 4, name: '情報システム演習Ⅱ', color: '#EF5350', semester: 'fall' },
+  { day: '木', period: 4, name: '情報デザイン演習Ⅱ', color: '#EC407A', semester: 'fall' },
+  { day: '木', period: 5, name: 'ITビジネスモデル論', color: '#78909C', semester: 'fall' },
+  { day: '金', period: 2, name: 'ネットワーク構成論', color: '#AB47BC', semester: 'fall' },
+  { day: '金', period: 2, name: 'ヒューマンファクターズ', color: '#26C6DA', semester: 'fall' },
+  { day: '金', period: 3, name: '信号・システム基礎', color: '#66BB6A', semester: 'fall' },
+  { day: '金', period: 3, name: 'サービスデザイン論', color: '#EC407A', semester: 'fall' },
+  { day: '金', period: 4, name: 'コンピュータプログラミングⅡ・同演習', color: '#42A5F5', semester: 'fall' },
+  { day: '金', period: 5, name: 'コンピュータプログラミングⅡ・同演習', color: '#42A5F5', semester: 'fall' }
 ];
 
 function TimetablePage() {
-  const [semester, setSemester] = useState('spring')
-  const [timetable, setTimetable] = useState({})
+  const [semester, setSemester] = useState('spring') // 'spring' (前期) or 'fall' (後期)
+  
+  // ★ 前期用・後期用それぞれの時間割登録状態を独立して保持する構造
+  const [timetable, setTimetable] = useState({ spring: {}, fall: {} })
   const [editingCell, setEditingCell] = useState(null)
   const [editValue, setEditValue] = useState('')
-  // 初期値を null にして、最初は選択画面を出す
   const [selectedDepartment, setSelectedDepartment] = useState(null);
 
   const mainDepartments = [
@@ -44,44 +106,53 @@ function TimetablePage() {
     { id: 'rm', name: '機械工学系' },
   ];
 
-  const courseOptions = [
-    { id: 'RD', name: 'RD共通' },
-    { id: 'd1', name: 'd1 (コンピュータシステム)' },
-    { id: 'd2', name: 'd2 (ソフトウェアデザイン)' },
-    { id: 'd3', name: 'd3 (インタラクションデザイン)' },
-    { id: 'd4', name: 'd4 (社会情報デザイン)' },
-  ];
-
   const getCellKey = (day, period) => `${day}-${period}`
 
+  // セルクリック時の処理
   const handleCellClick = (day, period) => {
     const key = getCellKey(day, period)
-    const masterCourse = COURSE_MASTER.find(c => 
-      c.day === day && c.period === period && 
-      (c.dept.includes(selectedDepartment) || c.dept.includes('all') || (selectedDepartment.startsWith('d') && c.dept.includes('RD')))
-    );
+    // 現在選択されている「曜日」「時限」「学期」に一致する科目をマスターから抽出
+    const availableCourses = COURSE_MASTER.filter(
+      c => c.day === day && c.period === period && c.semester === semester
+    )
 
     setEditingCell(key)
-    setEditValue(masterCourse ? masterCourse.name : (timetable[key]?.name || ''))
+    
+    const currentSemesterTimetable = timetable[semester] || {}
+    if (currentSemesterTimetable[key]) {
+      setEditValue(currentSemesterTimetable[key].name)
+    } else if (availableCourses.length > 0) {
+      setEditValue(availableCourses[0].name)
+    } else {
+      setEditValue('')
+    }
   }
 
-  const handleSave = () => {
-    if (editingCell && editValue.trim()) {
-      const [day, period] = editingCell.split('-');
-      const masterCourse = COURSE_MASTER.find(c => 
-        c.day === day && parseInt(period) === c.period &&
-        (c.dept.includes(selectedDepartment) || c.dept.includes('all') || (selectedDepartment.startsWith('d') && c.dept.includes('RD')))
-      );
-      const color = masterCourse ? masterCourse.color : SAMPLE_COLORS[Math.floor(Math.random() * SAMPLE_COLORS.length)];
-      setTimetable(prev => ({ ...prev, [editingCell]: { name: editValue.trim(), color } }))
-    } else if (editingCell && !editValue.trim()) {
-      setTimetable(prev => { const next = { ...prev }; delete next[editingCell]; return next; })
+  // 保存（プルダウン選択確定）処理
+  const handleSave = (currentValue) => {
+    const targetValue = currentValue !== undefined ? currentValue : editValue;
+    
+    if (editingCell && targetValue) {
+      const selectedCourse = COURSE_MASTER.find(c => c.name === targetValue && c.semester === semester);
+      const color = selectedCourse ? selectedCourse.color : SAMPLE_COLORS[Math.floor(Math.random() * SAMPLE_COLORS.length)];
+      
+      setTimetable(prev => ({
+        ...prev,
+        [semester]: {
+          ...(prev[semester] || {}),
+          [editingCell]: { name: targetValue, color }
+        }
+      }))
+    } else if (editingCell && !targetValue) {
+      setTimetable(prev => {
+        const nextSemesterMap = { ...(prev[semester] || {}) };
+        delete nextSemesterMap[editingCell];
+        return { ...prev, [semester]: nextSemesterMap };
+      })
     }
     setEditingCell(null)
     setEditValue('')
   }
-
-  const handleKeyDown = (e) => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') setEditingCell(null); }
 
   // 1. 最初は学系選択画面を表示
   if (!selectedDepartment) {
@@ -101,10 +172,12 @@ function TimetablePage() {
     );
   }
 
-  const registeredCount = Object.keys(timetable).length
+  // 現在表示している学期に登録されている科目の数・単位数を計算
+  const currentSemesterTimetable = timetable[semester] || {}
+  const registeredCount = Object.keys(currentSemesterTimetable).length
   const totalCredits = registeredCount * 2
 
-  // 2. 学系選択後の時間割画面
+  // 2. 学系選択後の時間割メイン画面
   return (
     <main className="timetable-page">
       <div className="timetable-container">
@@ -120,17 +193,6 @@ function TimetablePage() {
         <div className="timetable-stats">
           <div className="timetable-stat">📚 <span className="timetable-stat-label">登録科目</span> <span className="timetable-stat-value">{registeredCount}</span></div>
           <div className="timetable-stat">🎓 <span className="timetable-stat-label">合計単位</span> <span className="timetable-stat-value">{totalCredits}</span></div>
-          <div className="timetable-stat department-selector-stat">
-            <span className="timetable-stat-label">コース選択</span>
-            <div className="radio-group" style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
-              {courseOptions.map(opt => (
-                <label key={opt.id} className="radio-item">
-                  <input type="radio" name="course" value={opt.id} checked={selectedDepartment === opt.id} onChange={(e) => setSelectedDepartment(e.target.value)} />
-                  {opt.name.split(' ')[0]}
-                </label>
-              ))}
-            </div>
-          </div>
         </div>
 
         <div className="timetable-grid-wrapper">
@@ -145,11 +207,12 @@ function TimetablePage() {
                 </div>
                 {DAYS.map(day => {
                   const key = getCellKey(day, period)
-                  const entry = timetable[key]
+                  const entry = currentSemesterTimetable[key]
                   const isEditing = editingCell === key
-                  const masterCourse = COURSE_MASTER.find(c => 
-                    c.day === day && c.period === period && 
-                    (c.dept.includes(selectedDepartment) || c.dept.includes('all') || (selectedDepartment.startsWith('d') && c.dept.includes('RD')))
+                  
+                  // 現在選択されている「学期（semester）」のデータだけをグリッドに反映
+                  const availableCourses = COURSE_MASTER.filter(
+                    c => c.day === day && c.period === period && c.semester === semester
                   );
 
                   return (
@@ -158,10 +221,29 @@ function TimetablePage() {
                       onClick={() => !isEditing && handleCellClick(day, period)}
                     >
                       {isEditing ? (
-                        <input className="timetable-cell-input" value={editValue} onChange={e => setEditValue(e.target.value)} onBlur={handleSave} onKeyDown={handleKeyDown} autoFocus />
+                        <select 
+                          className="timetable-cell-input" 
+                          value={editValue} 
+                          onChange={e => {
+                            setEditValue(e.target.value);
+                            handleSave(e.target.value);
+                          }} 
+                          onBlur={() => handleSave(editValue)}
+                          autoFocus
+                          style={{ width: '100%', height: '100%', padding: '2px', fontSize: '11px', borderRadius: '4px', border: '1px solid #ccc' }}
+                        >
+                          {availableCourses.length > 0 ? (
+                            availableCourses.map(c => (
+                              <option key={c.name} value={c.name}>{c.name}</option>
+                            ))
+                          ) : (
+                            <option value="">（予定なし）</option>
+                          )}
+                          {entry && <option value="">❌ 選択を解除（削除）</option>}
+                        </select>
                       ) : entry ? (
                         <div className="timetable-cell-content"><span className="timetable-cell-name">{entry.name}</span></div>
-                      ) : masterCourse ? (
+                      ) : availableCourses.length > 0 ? (
                         <span className="timetable-cell-placeholder">+</span>
                       ) : null}
                     </div>
