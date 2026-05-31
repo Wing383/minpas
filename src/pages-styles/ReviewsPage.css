@@ -264,3 +264,312 @@
     margin-left: 0;
   }
 }
+
+/* ===== Review Search ===== */
+.review-search-section {
+  margin-bottom: 24px;
+}
+
+.review-autocomplete-wrapper {
+  position: relative;
+  flex: 1;
+  width: 100%;
+}
+
+.review-search-result-section {
+  margin-bottom: 24px;
+}
+
+.review-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.review-section-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.review-section-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  background: rgba(0, 121, 107, 0.08);
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+
+.review-course-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-course-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+  transition: all var(--transition);
+}
+
+.review-course-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.review-course-card-main {
+  min-width: 0;
+}
+
+.review-course-card-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.review-course-card-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.review-course-card-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.review-course-card-count {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.review-course-card-action {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* ===== Review Post Form ===== */
+.review-post-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-md);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.review-post-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.review-post-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.review-post-course-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.review-post-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  background: rgba(0, 121, 107, 0.08);
+  border-radius: 20px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.review-post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.review-post-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.review-post-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-light);
+}
+
+.review-post-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 120px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--bg-white);
+  outline: none;
+  font-family: inherit;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.review-post-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.1);
+}
+
+.review-post-textarea:disabled {
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.review-post-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.review-post-count {
+  text-align: right;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.review-message {
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
+.review-message--error {
+  color: #c62828;
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.review-message--success {
+  color: var(--primary-dark);
+  background: rgba(0, 121, 107, 0.08);
+}
+
+.review-post-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.review-submit-btn {
+  padding: 11px 24px;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(232, 163, 23, 0.3);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.review-submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(232, 163, 23, 0.4);
+}
+
+.review-submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ===== Autocomplete ===== */
+.autocomplete-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  max-height: 240px;
+  overflow-y: auto;
+  list-style: none;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.autocomplete-item {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item--active {
+  background: rgba(0, 121, 107, 0.06);
+  color: var(--primary-dark);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .review-post-card {
+    padding: 16px;
+  }
+
+  .review-post-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .review-post-badge {
+    align-self: flex-start;
+  }
+
+  .review-course-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .review-course-card-side {
+    align-items: flex-start;
+    flex-direction: row;
+  }
+
+  .review-post-actions {
+    justify-content: stretch;
+  }
+
+  .review-submit-btn {
+    width: 100%;
+  }
+}
