@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-=======
 import { useState, useEffect } from 'react'
->>>>>>> いい
+import { Link } from 'react-router-dom'
 import '../pages-styles/TimetablePage.css'
 
 const DAYS = ['月', '火', '水', '木', '金', '土']
@@ -435,23 +431,15 @@ function TimetablePage() {
                   const isTodayCell = pageMode === 'view' && day === todayDayOfWeek;
 
                   return (
-<<<<<<< HEAD
                     <div key={key} className={`timetable-cell timetable-cell--body ${entry ? 'timetable-cell--filled' : ''}`}
-                      style={entry ? { '--cell-color': entry.color } : {}}
-                      onClick={() => !isEditing && !entry && handleCellClick(day, period)}
-=======
-                    <div key={key} 
-                      onClick={() => !isEditing && handleCellClick(day, period)}
                       style={{
-                        background: entry ? entry.color : '#fff',
-                        border: isTodayCell ? '3px solid #f1c40f' : '1px solid #e0e0e0',
-                        minHeight: '130px',
-                        borderRadius: '6px',
-                        padding: '6px',
+                        '--cell-color': entry?.color,
+                        border: isTodayCell ? '3px solid #f1c40f' : undefined,
                         cursor: pageMode === 'edit' ? 'pointer' : 'default',
+                        minHeight: '130px',
                         position: 'relative'
                       }}
->>>>>>> いい
+                      onClick={() => !isEditing && handleCellClick(day, period)}
                     >
                       {isEditing ? (
                         <select value={editValue} onChange={e => { setEditValue(e.target.value); handleSaveCell(e.target.value); }} onBlur={() => handleSaveCell(editValue)} autoFocus style={{ width: '100%', padding: '4px', fontSize: '11px' }}>
@@ -460,25 +448,16 @@ function TimetablePage() {
                           {entry && <option value="">❌ この枠を削除</option>}
                         </select>
                       ) : entry ? (
-<<<<<<< HEAD
-                        <div className="timetable-cell-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', position: 'relative' }}>
-                          <Link to={`/course/${encodeURIComponent(entry.name)}`} className="timetable-cell-name" style={{ textDecoration: 'none', color: 'inherit', textAlign: 'center' }}>
-                            {entry.name}
-                          </Link>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); handleCellClick(day, period); }} 
-                            style={{ position: 'absolute', top: '2px', right: '2px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.8)', cursor: 'pointer', padding: '2px', fontSize: '10px' }}
-                            title="編集"
-                          >
-                            ✏️
-                          </button>
-                        </div>
-                      ) : masterCourse ? (
-                        <span className="timetable-cell-placeholder">+</span>
-=======
-                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', width: '100%' }}>
                           <div>
-                            <div style={{ fontWeight: 'bold', fontSize: '11px', color: '#2c3e50', lineHeight: '1.2' }}>{entry.name}</div>
+                            <Link 
+                              to={`/course/${encodeURIComponent(entry.name)}`} 
+                              className="timetable-cell-name" 
+                              style={{ textDecoration: 'none', color: 'inherit', fontWeight: 'bold' }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {entry.name}
+                            </Link>
                             
                             {pageMode === 'edit' && (
                               <button 
@@ -520,8 +499,7 @@ function TimetablePage() {
                           )}
                         </div>
                       ) : (pageMode === 'edit' && availableCourses.length > 0) ? (
-                        <div style={{ textAlign: 'center', color: '#bbb', fontSize: '20px', paddingTop: '40px' }}>+</div>
->>>>>>> いい
+                        <span className="timetable-cell-placeholder">+</span>
                       ) : null}
                     </div>
                   );
