@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import '../pages-styles/TimetablePage.css'
 
 const DAYS = ['月', '火', '水', '木', '金', '土']
@@ -155,12 +156,23 @@ function TimetablePage() {
                   return (
                     <div key={key} className={`timetable-cell timetable-cell--body ${entry ? 'timetable-cell--filled' : ''}`}
                       style={entry ? { '--cell-color': entry.color } : {}}
-                      onClick={() => !isEditing && handleCellClick(day, period)}
+                      onClick={() => !isEditing && !entry && handleCellClick(day, period)}
                     >
                       {isEditing ? (
                         <input className="timetable-cell-input" value={editValue} onChange={e => setEditValue(e.target.value)} onBlur={handleSave} onKeyDown={handleKeyDown} autoFocus />
                       ) : entry ? (
-                        <div className="timetable-cell-content"><span className="timetable-cell-name">{entry.name}</span></div>
+                        <div className="timetable-cell-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', position: 'relative' }}>
+                          <Link to={`/course/${encodeURIComponent(entry.name)}`} className="timetable-cell-name" style={{ textDecoration: 'none', color: 'inherit', textAlign: 'center' }}>
+                            {entry.name}
+                          </Link>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleCellClick(day, period); }} 
+                            style={{ position: 'absolute', top: '2px', right: '2px', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.8)', cursor: 'pointer', padding: '2px', fontSize: '10px' }}
+                            title="編集"
+                          >
+                            ✏️
+                          </button>
+                        </div>
                       ) : masterCourse ? (
                         <span className="timetable-cell-placeholder">+</span>
                       ) : null}

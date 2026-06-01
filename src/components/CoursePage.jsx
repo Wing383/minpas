@@ -7,6 +7,7 @@ import {
 import { db } from '../firebase/firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { ALL_COURSES } from '../data/allCourses'
+import { getSyllabusDetail } from '../data/syllabusData'
 import '../pages-styles/CoursePage.css'
 
 // ---- 星コンポーネント ----
@@ -57,6 +58,7 @@ export default function CoursePage() {
 
   // CSVデータから基本情報
   const baseInfo = ALL_COURSES.find((c) => c.name === courseName)
+  const syllabus = baseInfo ? getSyllabusDetail(courseName, baseInfo.faculty) : null
 
   // Firestoreの口コミ
   const [reviews, setReviews] = useState([])
@@ -170,75 +172,76 @@ export default function CoursePage() {
         </div>
       )}
 
-      {/* 口コミ投稿フォーム */}
-      <div className="review-form-section">
-        <h2 className="cp-reviews-title">✏️ 口コミを投稿する</h2>
-
-        {!isLoggedIn ? (
-          <div className="review-login-prompt">
-            <p>口コミを投稿するにはログインが必要です</p>
-            <button className="review-login-btn" onClick={loginWithGoogle}>
-              <svg viewBox="0 0 24 24" width="18" height="18">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" />
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-              </svg>
-              Googleでログインして投稿
-            </button>
+      {/* 授業詳細（シラバス）情報 */}
+      {syllabus && (
+        <div className="cp-details-card">
+          <h2 className="cp-details-title">📄 授業詳細情報</h2>
+          <div className="cp-details-grid">
+            <div className="cp-detail-item">
+              <span className="cp-detail-label">開講情報</span>
+              <span className="cp-detail-value">{syllabus.dayPeriod}</span>
+            </div>
+            <div className="cp-detail-item">
+              <span className="cp-detail-label">単位数</span>
+              <span className="cp-detail-value">{syllabus.credits}単位</span>
+            </div>
+            <div className="cp-detail-item">
+              <span className="cp-detail-label">教室</span>
+              <span className="cp-detail-value">{syllabus.classroom}</span>
+            </div>
+            <div className="cp-detail-item cp-detail-item--full">
+              <span className="cp-detail-label">教科書</span>
+              <span className="cp-detail-value">{syllabus.textbook}</span>
+            </div>
           </div>
-        ) : (
-          <form className="review-form" onSubmit={handleSubmit}>
-            <div className="review-form-row">
-              <div className="review-form-field">
-                <label className="review-form-label">充実度</label>
-                <StarSelector value={contentScore} onChange={setContentScore} />
-              </div>
-              <div className="review-form-field">
-                <label className="review-form-label">楽単度</label>
-                <StarSelector value={easyScore} onChange={setEasyScore} />
-              </div>
+
+          <div className="cp-details-section">
+            <h3 className="cp-details-subtitle">💡 授業概要</h3>
+            <p className="cp-details-text">{syllabus.overview}</p>
+          </div>
+
+          <div className="cp-details-section">
+            <h3 className="cp-details-subtitle">🎯 評価割合</h3>
+            <div className="cp-grading-list">
+              {syllabus.grading.exam > 0 && (
+                <div className="cp-grading-item">
+                  <div className="cp-grading-header">
+                    <span className="cp-grading-label">期末試験</span>
+                    <span className="cp-grading-percent">{syllabus.grading.exam}%</span>
+                  </div>
+                  <div className="cp-grading-bar-bg">
+                    <div className="cp-grading-bar cp-grading-bar--exam" style={{ width: `${syllabus.grading.exam}%` }}></div>
+                  </div>
+                </div>
+              )}
+              {syllabus.grading.report > 0 && (
+                <div className="cp-grading-item">
+                  <div className="cp-grading-header">
+                    <span className="cp-grading-label">レポート・課題</span>
+                    <span className="cp-grading-percent">{syllabus.grading.report}%</span>
+                  </div>
+                  <div className="cp-grading-bar-bg">
+                    <div className="cp-grading-bar cp-grading-bar--report" style={{ width: `${syllabus.grading.report}%` }}></div>
+                  </div>
+                </div>
+              )}
+              {syllabus.grading.attendance > 0 && (
+                <div className="cp-grading-item">
+                  <div className="cp-grading-header">
+                    <span className="cp-grading-label">平常点・出席</span>
+                    <span className="cp-grading-percent">{syllabus.grading.attendance}%</span>
+                  </div>
+                  <div className="cp-grading-bar-bg">
+                    <div className="cp-grading-bar cp-grading-bar--attendance" style={{ width: `${syllabus.grading.attendance}%` }}></div>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="review-form-row">
-              <div className="review-form-field">
-                <label className="review-form-label">開講年度</label>
-                <select className="review-form-select" value={year} onChange={(e) => setYear(e.target.value)}>
-                  <option value="">選択</option>
-                  <option value="2026">2026年度</option>
-                  <option value="2025">2025年度</option>
-                  <option value="2024">2024年度</option>
-                </select>
-              </div>
-              <div className="review-form-field">
-                <label className="review-form-label">学期</label>
-                <select className="review-form-select" value={semester} onChange={(e) => setSemester(e.target.value)}>
-                  <option value="">選択</option>
-                  <option value="前期">前期</option>
-                  <option value="後期">後期</option>
-                  <option value="集中">集中</option>
-                  <option value="通年">通年</option>
-                </select>
-              </div>
-            </div>
-            <div className="review-form-field">
-              <label className="review-form-label">コメント（10文字以上）</label>
-              <textarea
-                className="review-form-textarea"
-                placeholder="授業の内容・テスト・課題などについて書いてください"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                rows={4}
-              />
-              <span className="review-form-charcount">{comment.length}文字</span>
-            </div>
-            {submitError && <p className="review-form-error">{submitError}</p>}
-            {submitted && <p className="review-form-success">✅ 投稿しました！</p>}
-            <button type="submit" className="review-submit-btn" disabled={submitting}>
-              {submitting ? '投稿中...' : '口コミを投稿する'}
-            </button>
-          </form>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
+
+
 
       {/* 口コミ一覧 */}
       <div className="cp-reviews">

@@ -24,7 +24,7 @@
 .cp-header-card {
   background: var(--bg-white);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Softer shadow like image */
   padding: 24px;
   display: flex;
   align-items: flex-start;
@@ -32,48 +32,54 @@
   margin-bottom: 16px;
 }
 .cp-badge {
-  min-width: 44px;
-  height: 44px;
+  min-width: 56px;
+  height: 56px;
   background: var(--primary);
   color: #fff;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 22px;
   flex-shrink: 0;
 }
 .cp-header-info {
   flex: 1;
 }
 .cp-course-name {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 6px;
-  line-height: 1.4;
+  margin-bottom: 8px;
+  line-height: 1.3;
 }
 .cp-teacher,
 .cp-faculty {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-light);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 .cp-review-count {
   display: flex;
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
+  margin-left: 10px;
 }
 .cp-review-num {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: var(--primary);
   line-height: 1;
+  border-bottom: 3px solid var(--primary);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  min-width: 28px;
+  text-align: center;
 }
 .cp-review-unit {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
@@ -81,50 +87,51 @@
 .cp-score-card {
   background: var(--bg-white);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
-  padding: 20px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 24px;
   margin-bottom: 16px;
 }
 .cp-score-title,
 .cp-reviews-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 /* 星 */
 .cp-star-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 .cp-star-label {
-  font-size: 12px;
+  font-size: 13px;
   background: var(--primary-light);
   color: var(--primary-dark);
-  padding: 2px 8px;
+  padding: 4px 12px;
   border-radius: 99px;
   font-weight: 600;
-  min-width: 44px;
+  min-width: 64px;
   text-align: center;
 }
 .cp-stars {
   display: flex;
-  gap: 2px;
+  gap: 4px;
 }
 .cp-star {
   color: var(--border);
-  font-size: 18px;
+  font-size: 20px;
 }
 .cp-star--on {
   color: var(--star-color);
 }
 .cp-star-val {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-light);
   font-weight: 600;
+  margin-left: 4px;
 }
 
 /* 口コミ */
@@ -227,8 +234,8 @@
 .review-form-section {
   background: var(--bg-white);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
-  padding: 20px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 24px;
   margin-bottom: 16px;
 }
 
@@ -350,4 +357,107 @@
 }
 .review-submit-btn:hover { background: var(--primary-dark); }
 .review-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ===== 授業詳細カード ===== */
+.cp-details-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.cp-details-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 18px;
+}
+.cp-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.cp-detail-item {
+  background: var(--bg);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+.cp-detail-item--full {
+  grid-column: 1 / -1;
+}
+.cp-detail-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.cp-detail-value {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 700;
+}
+.cp-details-section {
+  margin-top: 20px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 16px;
+}
+.cp-details-subtitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.cp-details-text {
+  font-size: 13.5px;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+.cp-grading-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cp-grading-item {
+  display: flex;
+  flex-direction: column;
+}
+.cp-grading-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.cp-grading-label {
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+.cp-grading-percent {
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 700;
+}
+.cp-grading-bar-bg {
+  height: 8px;
+  background: var(--border-light);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.cp-grading-bar {
+  height: 100%;
+  border-radius: 99px;
+}
+.cp-grading-bar--exam {
+  background: var(--accent);
+}
+.cp-grading-bar--report {
+  background: var(--primary);
+}
+.cp-grading-bar--attendance {
+  background: #42a5f5;
+}
+
 
