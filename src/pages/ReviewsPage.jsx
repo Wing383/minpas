@@ -78,7 +78,7 @@ function formatReviewDate(createdAt) {
   } else {
     dateObj = new Date(createdAt)
   }
-  
+
   if (isNaN(dateObj.getTime())) return ''
   const y = dateObj.getFullYear()
   const m = String(dateObj.getMonth() + 1).padStart(2, '0')
@@ -133,10 +133,10 @@ function AutocompleteInput({ id, placeholder, value, onChange, suggestions }) {
     value.trim() === ''
       ? []
       : suggestions
-          .filter((suggestion) =>
-            normalizeText(suggestion).includes(normalizeText(value))
-          )
-          .slice(0, 10)
+        .filter((suggestion) =>
+          normalizeText(suggestion).includes(normalizeText(value))
+        )
+        .slice(0, 10)
 
   useEffect(() => {
     function handleOutsideClick(e) {
@@ -202,9 +202,8 @@ function AutocompleteInput({ id, placeholder, value, onChange, suggestions }) {
           {filtered.map((item, index) => (
             <li
               key={item}
-              className={`autocomplete-item${
-                index === highlighted ? ' autocomplete-item--active' : ''
-              }`}
+              className={`autocomplete-item${index === highlighted ? ' autocomplete-item--active' : ''
+                }`}
               role="option"
               aria-selected={index === highlighted}
               onMouseDown={() => handleSelect(item)}
@@ -369,7 +368,7 @@ function ReviewsPage() {
       setYear('')
       setErrorMessage('')
       setSuccessMessage('✅ 口コミを投稿しました！')
-      
+
       // 成功メッセージは一定時間で消す
       setTimeout(() => setSuccessMessage(''), 3000)
     } catch (err) {
@@ -385,17 +384,17 @@ function ReviewsPage() {
 
   const displayReviews = selectedCourse
     ? [...reviews]
-        .filter((review) => review.courseName === selectedCourse.name)
-        .sort((a, b) => {
-          const aTime = reviewTimeValue(a)
-          const bTime = reviewTimeValue(b)
+      .filter((review) => review.courseName === selectedCourse.name)
+      .sort((a, b) => {
+        const aTime = reviewTimeValue(a)
+        const bTime = reviewTimeValue(b)
 
-          if (sortBy === 'oldest') {
-            return aTime - bTime
-          }
+        if (sortBy === 'oldest') {
+          return aTime - bTime
+        }
 
-          return bTime - aTime
-        })
+        return bTime - aTime
+      })
     : []
 
   return (
@@ -504,9 +503,9 @@ function ReviewsPage() {
           {!isLoggedIn ? (
             <div className="review-login-prompt" style={{ textAlign: 'center', padding: '24px 0 8px', color: 'var(--text-light)', fontSize: '14px' }}>
               <p>口コミを投稿するにはログインが必要です</p>
-              <button 
+              <button
                 type="button"
-                className="review-login-btn" 
+                className="review-login-btn"
                 onClick={loginWithGoogle}
                 style={{
                   display: 'inline-flex',
@@ -549,11 +548,11 @@ function ReviewsPage() {
               <div className="review-form-row" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '4px' }}>
                 <div className="review-post-field" style={{ flex: 1, minWidth: '120px' }}>
                   <label className="review-post-label" htmlFor="review-year">開講年度</label>
-                  <select 
-                    id="review-year" 
-                    className="reviews-sort-select" 
-                    value={year} 
-                    onChange={(e) => setYear(e.target.value)} 
+                  <select
+                    id="review-year"
+                    className="reviews-sort-select"
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
                     style={{ width: '100%' }}
                     disabled={!selectedCourse}
                   >
@@ -565,11 +564,11 @@ function ReviewsPage() {
                 </div>
                 <div className="review-post-field" style={{ flex: 1, minWidth: '120px' }}>
                   <label className="review-post-label" htmlFor="review-semester">学期</label>
-                  <select 
-                    id="review-semester" 
-                    className="reviews-sort-select" 
-                    value={semester} 
-                    onChange={(e) => setSemester(e.target.value)} 
+                  <select
+                    id="review-semester"
+                    className="reviews-sort-select"
+                    value={semester}
+                    onChange={(e) => setSemester(e.target.value)}
                     style={{ width: '100%' }}
                     disabled={!selectedCourse}
                   >
@@ -711,7 +710,7 @@ function ReviewsPage() {
                 </div>
               </div>
             ))}
-           
+
         </div>
       </div>
     </main>
