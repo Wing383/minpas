@@ -20,13 +20,67 @@ const GRADUATION_REQUIREMENTS = {
   special: 88,  // 学系専門
 };
 
-const COURSE_COLORS = {
-  d1: '#FFF59D', // 🟡 コンピュータソフトウェア
-  d2: '#90CAF9', // 🔵 情報システム
-  d3: '#A5D6A7', // 🟢 知能情報デザイン
-  d4: '#F48FB1', // 💗 アミューズメントデザイン
-  default: '#E0E0E0', 
+// 🎓 東京電機大学理工学部の学年別単位目安
+// 1→2年次：30単位、3→4年次：104単位、卒業要件：124単位
+const GRADE_CREDIT_REQUIREMENTS = {
+  '1': { label: '2年次進級まで', required: 30 },
+  '2': { label: '4年次進級まで', required: 104 },
+  '3': { label: '4年次進級まで', required: 104 },
+  '4': { label: '卒業まで', required: 124 },
 };
+
+const COURSE_COLORS = {
+  RD: '#E3F2FD',      // RD共通科目
+  d1: '#FFF59D',      // コンピュータソフトウェア
+  d2: '#90CAF9',      // 情報システム
+  d3: '#A5D6A7',      // 知能情報デザイン
+  d4: '#F48FB1',      // アミューズメントデザイン
+  mixed: '#D1C4E9',   // 複数コース対象
+  default: '#E0E0E0',
+};
+
+const COURSE_LABELS = {
+  RD: 'RD共通',
+  d1: 'd1',
+  d2: 'd2',
+  d3: 'd3',
+  d4: 'd4',
+  mixed: '複数',
+  default: 'その他',
+}
+
+const normalizeCourseId = (value = '') => {
+  const text = String(value)
+  if (text.includes('d1')) return 'd1'
+  if (text.includes('d2')) return 'd2'
+  if (text.includes('d3')) return 'd3'
+  if (text.includes('d4')) return 'd4'
+  if (text.includes('RD')) return 'RD'
+  return 'default'
+}
+
+const getCourseColorKey = (target = '', preferredCourse = '') => {
+  const text = String(target)
+  const preferred = normalizeCourseId(preferredCourse)
+
+  // 複数コース対象の授業は、選択中の主コースが含まれていればその色を優先
+  if (['d1', 'd2', 'd3', 'd4'].includes(preferred) && text.includes(preferred)) {
+    return preferred
+  }
+
+  if (text === 'RD' || text.includes('RD')) return 'RD'
+
+  const targets = ['d1', 'd2', 'd3', 'd4'].filter((id) => text.includes(id))
+  if (targets.length === 1) return targets[0]
+  if (targets.length >= 2) return 'mixed'
+
+  return 'default'
+}
+
+const getCourseColor = (target = '', preferredCourse = '') => {
+  const key = getCourseColorKey(target, preferredCourse)
+  return COURSE_COLORS[key] || COURSE_COLORS.default
+}
 
 const COURSES = [
   { id: 'd1', name: 'コンピュータソフトウェア (d1)' },
@@ -37,128 +91,311 @@ const COURSES = [
 
 const COURSE_MASTER = [
   // 🗓️ 月曜日
-  { day: '月', period: 2, name: '現代マスコミ論', teacher: '中山 洋', room: '204', semester: 'spring', target: 'RD', grade: 2, type: '選択', hasAttendance: false },
-  { day: '月', period: 2, name: '情報セキュリティ概論', teacher: '橋本 侑知', room: '201', semester: 'spring', target: 'd1,d2', grade: 3, type: '選択', hasAttendance: true }, 
-  { day: '月', period: 2, name: '動的システム', teacher: '小河 誠巳', room: '6101', semester: 'spring', target: 'd2', grade: 2, type: '選択', hasAttendance: true }, 
-  { day: '月', period: 2, name: '情報数学Ⅰ', teacher: '小河/築地/松浦/佐藤/橋本/萩原', room: '3220他', semester: 'spring', target: 'RD', grade: 1, type: '選択', hasAttendance: true }, 
-  { day: '月', period: 3, name: '情報数学Ⅱ', teacher: '築地 立家 / 小河 誠巳', room: '3330,3340', semester: 'spring', target: 'RD', grade: 2, type: '選択', hasAttendance: true }, 
-  { day: '月', period: 3, name: '計算量と暗号', teacher: '橋本 侑知', room: '201', semester: 'spring', target: 'd1,d2', grade: 3, type: '選択', hasAttendance: true }, 
-  { day: '月', period: 3, name: 'インタラクティブデザイン論', teacher: '矢口 博之', room: '221', semester: 'spring', target: 'd3,d4', grade: 3, type: '選択', hasAttendance: false },
-  { day: '月', period: 3, name: '社会心理学', teacher: '鳥居 拓馬', room: '6102', semester: 'spring', target: 'd3', grade: 2, type: '選択', hasAttendance: true }, 
-  { day: '月', period: 3, name: '認知心理学', teacher: '高橋 徹', room: '202', semester: 'spring', target: 'd4', grade: 2, type: '選択', hasAttendance: true }, 
-  { day: '月', period: 4, name: '情報システム総合演習', teacher: '学系教員', room: '各実験室', semester: 'spring', target: '学系専門', grade: 3, type: '選択', hasAttendance: true }, 
-  
+  { day: "月", period: 2, name: "動的システム", teacher: "小河 誠巳", room: "6101", semester: 'spring', target: "d2", grade: 2, type: "選択", hasAttendance: true },
+  { day: "月", period: 2, name: "現代マスコミ論", teacher: "中山 洋", room: "204", semester: 'spring', target: "RD", grade: 2, type: "選択", hasAttendance: false },
+  { day: "月", period: 2, name: "情報セキュリティ概論", teacher: "橋本 侑知", room: "201", semester: 'spring', target: "d1,d2", grade: 3, type: "選択", hasAttendance: true },
+  { day: "月", period: 3, name: "情報数学Ⅱ", teacher: "築地 立家 / 小河 誠巳", room: "3330,3340", semester: 'spring', target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "月", period: 3, name: "社会心理学", teacher: "鳥居 拓馬", room: "6102", semester: 'spring', target: "d3", grade: 2, type: "選択", hasAttendance: true },
+  { day: "月", period: 3, name: "認知心理学", teacher: "鳥居 拓馬", room: "6102", semester: 'spring', target: "d3", grade: 2, type: "選択", hasAttendance: true },
+  { day: "月", period: 3, name: "インタラクティブデザイン論", teacher: "矢口 博之", room: "221", semester: 'spring', target: "d3,d4", grade: 3, type: "選択", hasAttendance: false },
+  { day: "月", period: 3, name: "計算量と暗号", teacher: "橋本 侑知", room: "201", semester: 'spring', target: "d1,d2", grade: 3, type: "選択", hasAttendance: true },
+  { day: "月", period: 4, name: "情報システム総合演習", teacher: "学系教員", room: "203,204,124,221", semester: 'spring', target: "d1,d2", grade: 3, type: "必修", hasAttendance: true },
+  { day: "月", period: 5, name: "人工知能プログラミングⅠ", teacher: "高橋 達二 / 甲野 佑", room: "117", semester: 'spring', target: "d1,d2,d3", grade: 2, type: "選択", hasAttendance: true },
+
   // 🗓️ 火曜日
-  { day: '火', period: 2, name: 'データベース構成論', teacher: '陳 致中', room: '201', semester: 'spring', target: 'd1,d2', grade: 2, type: '選択', hasAttendance: true },
-  { day: '火', period: 3, name: '深層学習', teacher: '佐藤 聖起', room: '201', semester: 'spring', target: 'd1', grade: 3, type: '選択', hasAttendance: true },
-  { day: '火', period: 4, name: 'コンピュータネットワーク', teacher: '秋山 康智', room: '201', semester: 'spring', target: 'd2,d3', grade: 2, type: '選択', hasAttendance: true },
-  { day: '火', period: 5, name: 'オブジェクト指向', teacher: '藤本 衡', room: '3210', semester: 'spring', target: 'd1,d2', grade: 2, type: '選択', hasAttendance: true },
+  { day: "火", period: 1, name: "業務システム設計論", teacher: "中山 洋", room: "117", semester: 'spring', target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "火", period: 1, name: "ＵＮＩＸプログラミング", teacher: "泉 智紀", room: "203", semester: 'spring', target: "d2", grade: 3, type: "選択", hasAttendance: true },
+  { day: "火", period: 2, name: "データベース", teacher: "中山 洋", room: "117", semester: 'spring', target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "火", period: 3, name: "造形デザイン入門", teacher: "柴山 拓郎 / 大場 久恵 / 志水 賢二 / 大野 茉莉 / 小池 駿太", room: "321,3311,3320", semester: 'spring', target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "火", period: 3, name: "電気基礎", teacher: "泉 智紀", room: "8203", semester: 'spring', target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "火", period: 3, name: "コンピュータ設計学", teacher: "築地 立家", room: "203", semester: 'spring', target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "火", period: 4, name: "造形デザイン入門", teacher: "柴山 拓郎 / 大場 久恵 / 志水 賢二 / 大野 茉莉 / 小池 駿太", room: "321,3311,3320", semester: 'spring', target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "火", period: 4, name: "数値解析学", teacher: "徳田 太郎", room: "6102", semester: 'spring', target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "火", period: 4, name: "オペレーティングシステム", teacher: "藤本 衡", room: "203", semester: 'spring', target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "火", period: 5, name: "知能情報デザイン概論", teacher: "篠原 修二 / 高橋 達二 / 日髙 章理 / 佐藤 聖也 / 小林 春美 / 鳥居 拓馬", room: "321", semester: 'spring', target: "d3", grade: 2, type: "選択", hasAttendance: true },
 
-  // 🗓️ 水曜日以降
-  { day: '水', period: 1, name: '情報産業論', teacher: '大場/秋山/藤本/柴山', room: '201', semester: 'spring', target: 'RD', grade: 2, type: '選択' },
-  { day: '水', period: 2, name: '多変量解析', teacher: '佐藤 聖也', room: '201', semester: 'spring', target: 'd1', grade: 3, type: '選択' },
-  { day: '水', period: 2, name: 'メディア処理概論', teacher: '柴山 拓郎', room: '221', semester: 'spring', target: 'd3,d4', grade: 2, type: '選択' },
-  { day: '水', period: 3, name: '人間関係の心理(鳩山C)', teacher: '高橋 徹', room: '204', semester: 'spring', target: '全コース', grade: 2, type: '選択' },
-  { day: '水', period: 3, name: 'モバイルアプリ開発', teacher: '陳 致中', room: '3210', semester: 'spring', target: 'd2,d3', grade: 3, type: '選択' },
-  { day: '水', period: 3, name: '情報デザイン基礎演習', teacher: '柳 実', room: '3310', semester: 'spring', target: 'd4', grade: 2, type: '選択' },
-  { day: '水', period: 4, name: 'Webデザイン演習', teacher: '柳 実', room: '3310', semester: 'spring', target: 'd4', grade: 2, type: '選択' },
-  { day: '木', period: 2, name: 'プログラミング言語論', teacher: '松浦 昭洋', room: '201', semester: 'spring', target: 'd1,d2', grade: 2, type: '選択' },
-  { day: '木', period: 2, name: 'デザインリサーチ', teacher: '徳田 太郎', room: '283A', semester: 'spring', target: 'd4', grade: 3, type: '選択' },
-  { day: '木', period: 2, name: 'Webデザイン', teacher: '柳 実', room: '3310', semester: 'spring', target: 'd3', grade: 2, type: '選択' },
-  { day: '木', period: 3, name: '環境心理学', teacher: '鳥居 拓馬', room: '201', semester: 'spring', target: 'd3,d4', grade: 2, type: '選択' },
-  { day: '木', period: 3, name: '技術者倫理', teacher: '大場 みち子', room: '204', semester: 'spring', target: 'RD', grade: 3, type: '選択' },
-  { day: '木', period: 4, name: 'ソフトウェアエンジニアリング', teacher: '大場 みち子', room: '201', semester: 'spring', target: 'd2,d3', grade: 3, type: '選択' },
-  { day: '木', period: 4, name: 'ヒューマンインタフェース', teacher: '矢口 博之', room: '221', semester: 'spring', target: 'd1,d4', grade: 2, type: '選択' },
-  { day: '木', period: 5, name: '知財と法規', teacher: '浅井 寿如', room: '202', semester: 'spring', target: 'RD', grade: 3, type: '選択' },
-  { day: '金', period: 2, name: '数理とデザイン', teacher: '築地 立家', room: '202', semester: 'spring', target: 'd1,d4', grade: 2, type: '選択' },
-  { day: '金', period: 4, name: 'コンピュータプログラミングⅠ・同演習', teacher: '藤本 衡 / 萩原 健夫', room: '3210,3220', semester: 'spring', target: 'RD', grade: 1, type: '必修' },
-  { day: '金', period: 5, name: 'コンピュータプログラミングⅠ・同演習', teacher: '藤本 衡 / 萩原 健夫', room: '3210,3220', semester: 'spring', target: 'RD', grade: 1, type: '必修' }
+  // 🗓️ 水曜日
+  { day: "水", period: 1, name: "情報産業論", teacher: "中山 洋", room: "201", semester: 'spring', target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "水", period: 2, name: "コミュニケーションデザイン", teacher: "矢口 博之 / 大場 久恵", room: "221", semester: 'spring', target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "水", period: 2, name: "コミュニケーション科学", teacher: "矢口 博之 / 大場 久恵", room: "221", semester: 'spring', target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "水", period: 2, name: "音楽とデザイン", teacher: "柴山 拓郎 / 新井 聡真 / 中村 隆行", room: "201", semester: 'spring', target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "水", period: 2, name: "多変量解析", teacher: "佐藤 聖也 / 高橋 達二", room: "117", semester: 'spring', target: "d2,d3,d4", grade: 3, type: "選択", hasAttendance: true },
+  { day: "水", period: 3, name: "ゲームプログラミングⅠ", teacher: "柴田 良二", room: "203,204", semester: 'spring', target: "d1,d4", grade: 2, type: "選択", hasAttendance: true },
+  { day: "水", period: 5, name: "オブジェクト指向プログラミング", teacher: "佐藤 聖也 / 高橋 達二", room: "204", semester: 'spring', target: "d1,d2,d3", grade: 2, type: "選択", hasAttendance: true },
+
+  // 🗓️ 木曜日
+  { day: "木", period: 1, name: "情報システムデザイン概論", teacher: "学系教員", room: "201", semester: 'spring', target: "RD", grade: 1, type: "必修", hasAttendance: true },
+  { day: "木", period: 1, name: "五感とデザイン", teacher: "中山 洋 / 竹本 清香 / 村田 早苗 / 佐藤 英里子", room: "204", semester: 'spring', target: "d3,d4", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 2, name: "アルゴリズムとデータ構造Ⅰ", teacher: "笹川 隆史 / 橋本 侑知 / 橋浦 弘明", room: "204", semester: 'spring', target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 2, name: "技術と表現", teacher: "勝本 雄一朗", room: "203", semester: 'spring', target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 2, name: "空間演出デザイン論", teacher: "勝本 雄一朗", room: "203", semester: 'spring', target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 2, name: "地域貢献論", teacher: "柴山 拓郎 / 竹本 清香 / 村田 早苗 / 小田 雅昭 / 石川 智弥", room: "321", semester: 'spring', target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "木", period: 3, name: "データ表現とプログラミング", teacher: "高橋 達二 / 佐藤 聖也", room: "204", semester: 'spring', target: "d1,d3", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 3, name: "情報デザイン総合演習", teacher: "学系教員", room: "124,221,321,324,325", semester: 'spring', target: "d3,d4", grade: 3, type: "必修", hasAttendance: true },
+  { day: "木", period: 4, name: "情報システム演習Ⅰ", teacher: "学系教員", room: "124,2320", semester: 'spring', target: "d1,d2", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 4, name: "情報デザイン演習Ⅰ", teacher: "学系教員", room: "221,321,324,325,329", semester: 'spring', target: "d3,d4", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 4, name: "深層学習", teacher: "日髙 章理", room: "117", semester: 'spring', target: "d1,d2,d3", grade: 3, type: "選択", hasAttendance: true },
+
+  // 🗓️ 金曜日
+  { day: "金", period: 2, name: "人間計測法", teacher: "篠原 修二", room: "124", semester: 'spring', target: "d3,d4", grade: 3, type: "選択", hasAttendance: true },
+  { day: "金", period: 2, name: "実験心理・行動科学", teacher: "篠原 修二", room: "124", semester: 'spring', target: "d3,d4", grade: 3, type: "選択", hasAttendance: true },
+  { day: "金", period: 2, name: "数理とデザイン", teacher: "松浦 昭洋", room: "204", semester: 'spring', target: "d1,d3,d4", grade: 3, type: "選択", hasAttendance: true },
+  { day: "金", period: 3, name: "基礎確率論", teacher: "藤本 衡", room: "204", semester: 'spring', target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "金", period: 3, name: "数理最適化入門", teacher: "陳 致中", room: "324", semester: 'spring', target: "d1,d2,d3", grade: 3, type: "選択", hasAttendance: true },
+  { day: "金", period: 4, name: "コンピュータプログラミングⅠ・同演習", teacher: "徳田 太郎 / 陳 致中 / 佐藤 聖也 / 小河 誠巳 / 橋浦 弘明", room: "203,124,221,321,207", semester: 'spring', target: "RD", grade: 1, type: "必修", hasAttendance: true },
+  { day: "金", period: 4, name: "ＣプログラミングⅠ・同演習", teacher: "徳田 太郎 / 陳 致中 / 佐藤 聖也 / 小河 誠巳 / 橋浦 弘明", room: "203,124,221,321,207", semester: 'spring', target: "RD", grade: 1, type: "必修", hasAttendance: true },
+  { day: "金", period: 4, name: "統計学Ⅰ", teacher: "篠原 修二 / 鳥居 拓馬", room: "204", semester: 'spring', target: "d1,d2,d3", grade: 2, type: "選択", hasAttendance: true },
+  { day: "金", period: 5, name: "コンピュータプログラミングⅠ・同演習", teacher: "徳田 太郎 / 陳 致中 / 佐藤 聖也 / 小河 誠巳 / 橋浦 弘明", room: "203,124,221,321,207", semester: 'spring', target: "RD", grade: 1, type: "必修", hasAttendance: true },
+  { day: "金", period: 5, name: "ＣプログラミングⅠ・同演習", teacher: "徳田 太郎 / 陳 致中 / 佐藤 聖也 / 小河 誠巳 / 橋浦 弘明", room: "203,124,221,321,207", semester: 'spring', target: "RD", grade: 1, type: "必修", hasAttendance: true },
+  { day: "金", period: 5, name: "ＣＧプログラミング", teacher: "築地 立家 / 萩原 健夫", room: "2111,2112,2113", semester: 'spring', target: "d1,d3,d4", grade: 3, type: "選択", hasAttendance: true },
+
+  // 🗓️ 土曜日
+  { day: "土", period: 1, name: "情報システムデザイン卒業研究Ⅰ", teacher: "学系教員", room: "", semester: 'spring', target: "RDコース専門", grade: 4, type: "必修", hasAttendance: true },
+  { day: "土", period: 2, name: "情報システムデザイン卒業研究Ⅰ", teacher: "学系教員", room: "", semester: 'spring', target: "RDコース専門", grade: 4, type: "必修", hasAttendance: true },
+  { day: "土", period: 3, name: "情報システムデザイン卒業研究Ⅰ", teacher: "学系教員", room: "", semester: 'spring', target: "RDコース専門", grade: 4, type: "必修", hasAttendance: true },
+
+  // ===== 後期授業 =====
+  { day: "月", period: 2, name: "情報数学Ⅰ", teacher: "小河 誠巳 / 築地 立家 / 松浦 昭洋 / 佐藤 聖也 / 橋本 侑知 / 萩原 健夫", room: "3220,3230,3320,3330,3340,3350", semester: "fall", target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "月", period: 2, name: "センサ工学", teacher: "泉 智紀", room: "3150", semester: "fall", target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "月", period: 3, name: "コンピュータ基礎", teacher: "築地 立家 / 笹川 隆史 / 小河 誠巳 / 秋山 康智 / 萩原 健夫", room: "3320,3330,3340,3350,3150", semester: "fall", target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "月", period: 3, name: "コンピュータ基礎Ⅰ", teacher: "築地 立家 / 笹川 隆史 / 小河 誠巳 / 秋山 康智 / 萩原 健夫", room: "3320,3330,3340,3350,3150", semester: "fall", target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "月", period: 3, name: "人工知能プログラミングⅡ", teacher: "高橋 達二 / 甲野 佑", room: "117", semester: "fall", target: "d1,d2,d3", grade: 2, type: "選択", hasAttendance: true },
+  { day: "月", period: 3, name: "人工知能プログラミングⅡ", teacher: "高橋 達二 / 甲野 佑", room: "117", semester: "fall", target: "d1,d2,d3", grade: 3, type: "選択", hasAttendance: true },
+  { day: "月", period: 3, name: "生成人工知能", teacher: "日髙 章理", room: "203", semester: "fall", target: "d1,d2,d3", grade: 3, type: "選択", hasAttendance: true },
+  { day: "月", period: 4, name: "情報ネットワーク概論", teacher: "藤本 衡", room: "204", semester: "fall", target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "月", period: 5, name: "情報学ゼミ", teacher: "小河 誠巳 / 中山 洋 / 藤本 衡 / 徳田 太郎 / 築地 立家 / 柴山 拓郎 / 松浦 昭洋 / 高橋 達二 / 泉 智紀 / 笹川 隆史 / 佐藤 聖也 / 小林 春美 / 篠原 修二 / 橋本 侑知 / 鳥居 拓馬 / 秋山 康智 / 大場 久恵 / 神戸 英利 / 橋浦 弘明 / 竹本 清香 / 村田 早苗 / 佐藤 英里子 / 甲野 佑", room: "2112,2113", semester: "fall", target: "RD", grade: 3, type: "必修", hasAttendance: true },
+  { day: "火", period: 1, name: "教育システムデザイン論", teacher: "中山 洋", room: "12426A", semester: "fall", target: "d4", grade: 3, type: "選択", hasAttendance: true },
+  { day: "火", period: 2, name: "線形代数学Ⅱ", teacher: "小黒 隆 / 髙橋 秀慈", room: "3220,3230", semester: "fall", target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "火", period: 3, name: "コンピュータプログラミングⅡ・同演習", teacher: "陳 致中 / 徳田 太郎 / 日髙 章理 / 佐藤 聖也 / 橋浦 弘明", room: "203,124,221,224,321", semester: "fall", target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "火", period: 3, name: "ＣプログラミングⅡ・同演習", teacher: "陳 致中 / 徳田 太郎 / 日髙 章理 / 佐藤 聖也 / 橋浦 弘明", room: "203,124,221,224,321", semester: "fall", target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "火", period: 4, name: "コンピュータプログラミングⅡ・同演習", teacher: "陳 致中 / 徳田 太郎 / 日髙 章理 / 佐藤 聖也 / 橋浦 弘明", room: "203,124,221,224,321", semester: "fall", target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "火", period: 4, name: "ＣプログラミングⅡ・同演習", teacher: "陳 致中 / 徳田 太郎 / 日髙 章理 / 佐藤 聖也 / 橋浦 弘明", room: "203,124,221,224,321", semester: "fall", target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "火", period: 4, name: "情報・符号理論", teacher: "松浦 昭洋", room: "6102", semester: "fall", target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "火", period: 5, name: "キャリア開発論", teacher: "小田 雅昭", room: "6101", semester: "fall", target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "水", period: 1, name: "微分積分学Ⅱ", teacher: "越智 禎宏", room: "6104", semester: "fall", target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "水", period: 1, name: "ゲームプログラミングⅡ", teacher: "築地 立家 / 萩原 健夫", room: "117,2110", semester: "fall", target: "d1,d4", grade: 2, type: "選択", hasAttendance: true },
+  { day: "水", period: 2, name: "統計学Ⅱ", teacher: "鳥居 拓馬 / 中村 光晃", room: "204", semester: "fall", target: "d1,d2,d3", grade: 2, type: "選択", hasAttendance: true },
+  { day: "水", period: 2, name: "美術・芸術学", teacher: "大場 久恵", room: "201", semester: "fall", target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "水", period: 3, name: "コンピュータグラフィックス", teacher: "柴田 良二", room: "203,204", semester: "fall", target: "d1,d3,d4", grade: 2, type: "選択", hasAttendance: true },
+  { day: "水", period: 4, name: "映像制作論", teacher: "柴田 良二", room: "204", semester: "fall", target: "d4", grade: 2, type: "選択", hasAttendance: true },
+  { day: "水", period: 4, name: "組み込みシステム", teacher: "泉 智紀", room: "3230", semester: "fall", target: "d2", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 1, name: "色彩論", teacher: "大場 久恵", room: "201", semester: "fall", target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 2, name: "アルゴリズムとデータ構造Ⅱ", teacher: "藤本 衡 / 橋浦 弘明", room: "204", semester: "fall", target: "d1,d2,d3", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 2, name: "音楽構造論", teacher: "柴山 拓郎", room: "203", semester: "fall", target: "d4", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 2, name: "イメージ創造学", teacher: "勝本 雄一朗", room: "221", semester: "fall", target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "木", period: 2, name: "思考と試行", teacher: "勝本 雄一朗", room: "221", semester: "fall", target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "木", period: 3, name: "情報システム演習Ⅱ", teacher: "泉 智紀 / 藤本 衡 / 築地 立家 / 松浦 昭洋 / 笹川 隆史 / 小河 誠巳 / 秋山 康智 / 神戸 英利 / 橋浦 弘明 / 萩原 健夫 / 伊藤 史崇", room: "204", semester: "fall", target: "d1,d2", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 3, name: "情報デザイン演習Ⅱ", teacher: "矢口 博之 / 中山 洋 / 柴山 拓郎 / 高橋 達二 / 勝本 雄一朗 / 篠原 修二 / 鳥居 拓馬 / 大場 久恵 / 竹本 清香 / 村田 早苗 / 佐藤 英里子 / 大野 茉莉 / 石川 智弥", room: "124,321,324,325,326", semester: "fall", target: "d3,d4", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 3, name: "社会調査論", teacher: "氏家 豊", room: "203", semester: "fall", target: "d3", grade: 3, type: "選択", hasAttendance: true },
+  { day: "木", period: 4, name: "出版メディア論", teacher: "矢口 博之 / 石川 智弥", room: "124", semester: "fall", target: "d4", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 4, name: "応用Ｊａｖａプログラミング", teacher: "陳 致中", room: "117", semester: "fall", target: "d1,d2,d3", grade: 2, type: "選択", hasAttendance: true },
+  { day: "木", period: 5, name: "情報学ゼミ", teacher: "小河 誠巳 / 矢口 博之 / 陳 致中 / 日髙 章理 / 勝本 雄一朗 / 石川 智弥 / 新井 聡真 / 中村 隆行", room: "2110,2112,2113", semester: "fall", target: "RD", grade: 3, type: "必修", hasAttendance: true },
+  { day: "金", period: 1, name: "メディア×カルチャー", teacher: "米田 祐介", room: "201", semester: "fall", target: "d4", grade: 2, type: "選択", hasAttendance: true },
+  { day: "金", period: 1, name: "論理回路", teacher: "泉 智紀", room: "3210", semester: "fall", target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "金", period: 2, name: "デザイン学", teacher: "大場 久恵", room: "201", semester: "fall", target: "RD", grade: 1, type: "選択", hasAttendance: true },
+  { day: "金", period: 2, name: "ソフトウェア工学", teacher: "秋山 康智 / 神戸 英利", room: "3210", semester: "fall", target: "d1,d2,d3", grade: 3, type: "選択", hasAttendance: true },
+  { day: "金", period: 3, name: "基本情報処理技術", teacher: "伊藤 史崇", room: "204", semester: "fall", target: "RD", grade: 2, type: "選択", hasAttendance: true },
+  { day: "金", period: 3, name: "データサイエンス入門", teacher: "鳥居 拓馬 / 篠原 修二", room: "221", semester: "fall", target: "d3", grade: 3, type: "選択", hasAttendance: true },
+  { day: "金", period: 4, name: "情報学基礎実習", teacher: "松浦 昭洋 / 矢口 博之 / 陳 致中 / 中山 洋 / 藤本 衡 / 柴山 拓郎 / 日髙 章理 / 笹川 隆史 / 佐藤 聖也 / 小林 春美 / 勝本 雄一朗 / 小河 誠巳 / 篠原 修二 / 橋本 侑知 / 鳥居 拓馬 / 大場 久恵 / 橋浦 弘明", room: "2320,203,204,321,327,328,329,12427", semester: "fall", target: "RD", grade: 1, type: "必修", hasAttendance: true },
+  { day: "金", period: 5, name: "情報学基礎実習", teacher: "松浦 昭洋 / 矢口 博之 / 陳 致中 / 中山 洋 / 藤本 衡 / 柴山 拓郎 / 日髙 章理 / 笹川 隆史 / 佐藤 聖也 / 小林 春美 / 勝本 雄一朗 / 小河 誠巳 / 篠原 修二 / 橋本 侑知 / 鳥居 拓馬 / 大場 久恵 / 橋浦 弘明", room: "2320,203,204,321,327,328,329,12427", semester: "fall", target: "RD", grade: 1, type: "必修", hasAttendance: true },
+  { day: "土", period: 1, name: "情報システムデザイン特別卒業研究", teacher: "秋山 康智 / 矢口 博之 / 陳 致中 / 中山 洋 / 藤本 衡 / 徳田 太郎 / 築地 立家 / 柴山 拓郎 / 松浦 昭洋 / 高橋 達二 / 日髙 章理 / 泉 智紀 / 笹川 隆史 / 佐藤 聖也 / 小林 春美 / 勝本 雄一朗 / 小河 誠巳 / 篠原 修二 / 橋本 侑知 / 鳥居 拓馬 / 大場 久恵 / 神戸 英利", room: "", semester: "fall", target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "土", period: 1, name: "情報システムデザイン卒業研究Ⅱ", teacher: "秋山 康智 / 矢口 博之 / 陳 致中 / 中山 洋 / 藤本 衡 / 徳田 太郎 / 築地 立家 / 柴山 拓郎 / 松浦 昭洋 / 高橋 達二 / 日髙 章理 / 泉 智紀 / 笹川 隆史 / 佐藤 聖也 / 小林 春美 / 勝本 雄一朗 / 小河 誠巳 / 篠原 修二 / 橋本 侑知 / 鳥居 拓馬 / 大場 久恵 / 神戸 英利", room: "", semester: "fall", target: "RD", grade: 4, type: "必修", hasAttendance: true },
+  { day: "土", period: 2, name: "情報システムデザイン特別卒業研究", teacher: "秋山 康智 / 矢口 博之 / 陳 致中 / 中山 洋 / 藤本 衡 / 徳田 太郎 / 築地 立家 / 柴山 拓郎 / 松浦 昭洋 / 高橋 達二 / 日髙 章理 / 泉 智紀 / 笹川 隆史 / 佐藤 聖也 / 小林 春美 / 勝本 雄一朗 / 小河 誠巳 / 篠原 修二 / 橋本 侑知 / 鳥居 拓馬 / 大場 久恵 / 神戸 英利", room: "", semester: "fall", target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "土", period: 2, name: "情報システムデザイン卒業研究Ⅱ", teacher: "秋山 康智 / 矢口 博之 / 陳 致中 / 中山 洋 / 藤本 衡 / 徳田 太郎 / 築地 立家 / 柴山 拓郎 / 松浦 昭洋 / 高橋 達二 / 日髙 章理 / 泉 智紀 / 笹川 隆史 / 佐藤 聖也 / 小林 春美 / 勝本 雄一朗 / 小河 誠巳 / 篠原 修二 / 橋本 侑知 / 鳥居 拓馬 / 大場 久恵 / 神戸 英利", room: "", semester: "fall", target: "RD", grade: 4, type: "必修", hasAttendance: true },
+  { day: "土", period: 3, name: "情報システムデザイン特別卒業研究", teacher: "秋山 康智 / 矢口 博之 / 陳 致中 / 中山 洋 / 藤本 衡 / 徳田 太郎 / 築地 立家 / 柴山 拓郎 / 松浦 昭洋 / 高橋 達二 / 日髙 章理 / 泉 智紀 / 笹川 隆史 / 佐藤 聖也 / 小林 春美 / 勝本 雄一朗 / 小河 誠巳 / 篠原 修二 / 橋本 侑知 / 鳥居 拓馬 / 大場 久恵 / 神戸 英利", room: "", semester: "fall", target: "RD", grade: 3, type: "選択", hasAttendance: true },
+  { day: "土", period: 3, name: "情報システムデザイン卒業研究Ⅱ", teacher: "秋山 康智 / 矢口 博之 / 陳 致中 / 中山 洋 / 藤本 衡 / 徳田 太郎 / 築地 立家 / 柴山 拓郎 / 松浦 昭洋 / 高橋 達二 / 日髙 章理 / 泉 智紀 / 笹川 隆史 / 佐藤 聖也 / 小林 春美 / 勝本 雄一朗 / 小河 誠巳 / 篠原 修二 / 橋本 侑知 / 鳥居 拓馬 / 大場 久恵 / 神戸 英利", room: "", semester: "fall", target: "RD", grade: 4, type: "必修", hasAttendance: true },
 ];
 
-const REGISTRATION_PERIODS = [
-  { start: '2026-04-08T10:00', end: '2026-04-09T17:00', name: '履修登録期間 (1次登録)' },
-  { start: '2026-04-15T10:00', end: '2026-04-17T17:00', name: '履修登録期間 (2次登録)' },
-  { start: '2026-04-22T10:00', end: '2026-04-24T17:00', name: '履修登録修正期間 (春学期修正)' },
-];
+const REQUIRED_COURSES_BY_COURSE = {
+  d1: [
+    '情報システムデザイン概論',
+    '情報学基礎実習',
+    'CプログラミングⅠ・同演習',
+    '情報学ゼミ',
+    '情報システム演習Ⅰ',
+    '情報システム演習Ⅱ',
+    '情報システム総合演習',
+  ],
+  d2: [
+    '情報システムデザイン概論',
+    '情報学基礎実習',
+    'CプログラミングⅠ・同演習',
+    '情報学ゼミ',
+    '情報システム演習Ⅰ',
+    '情報システム演習Ⅱ',
+    '情報システム総合演習',
+  ],
+  d3: [
+    '情報システムデザイン概論',
+    '情報学基礎実習',
+    'CプログラミングⅠ・同演習',
+    '情報学ゼミ',
+    '情報デザイン演習Ⅰ',
+    '情報デザイン演習Ⅱ',
+    '情報デザイン総合演習',
+  ],
+  d4: [
+    '情報システムデザイン概論',
+    '情報学基礎実習',
+    'CプログラミングⅠ・同演習',
+    '情報学ゼミ',
+    '情報デザイン演習Ⅰ',
+    '情報デザイン演習Ⅱ',
+    '情報デザイン総合演習',
+  ],
+};
+
+
+const readJsonStorage = (key, fallback) => {
+  try {
+    const saved = localStorage.getItem(key)
+    return saved ? JSON.parse(saved) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+const readSessionJson = (key, fallback) => {
+  try {
+    const saved = sessionStorage.getItem(key)
+    return saved ? JSON.parse(saved) : fallback
+  } catch {
+    return fallback
+  }
+}
 
 function TimetablePage() {
-  const [semester, setSemester] = useState('spring')
+  const [semester, setSemester] = useState(() => localStorage.getItem('isd_selected_term') || 'spring')
   const [editingCell, setEditingCell] = useState(null)
   const [editValue, setEditValue] = useState('')
   const [saveMessage, setSaveMessage] = useState('') 
   
-  const [pageMode, setPageMode] = useState(null)
-  const [editStep, setEditStep] = useState('date-lock-check') 
-  const [viewStep, setViewStep] = useState('date-input')
+  // 口コミページからブラウザバックした時だけ、直前の時間割画面を復元する
+  // ホームなど別タブへ移動してから戻った場合は、必ず初期画面から表示する
+  const shouldRestoreFromCourse = sessionStorage.getItem('isd_restore_timetable_from_course') === 'true'
+  const savedScreenState = shouldRestoreFromCourse
+    ? readSessionJson('isd_timetable_screen_state', {})
+    : {}
+
+  const [pageMode, setPageMode] = useState(savedScreenState.pageMode ?? null)
+  const [editStep, setEditStep] = useState(savedScreenState.editStep ?? 'course-select') 
+  const [viewStep, setViewStep] = useState(savedScreenState.viewStep ?? 'date-input')
   
-  const [simulatedDateTime, setSimulatedDateTime] = useState('')
-  const [activePeriodName, setActivePeriodName] = useState('')
+  const [simulatedDateTime, setSimulatedDateTime] = useState(savedScreenState.simulatedDateTime ?? '')
+  const [activePeriodName, setActivePeriodName] = useState(savedScreenState.activePeriodName ?? '')
   const [lockError, setLockError] = useState('')
 
-  const [todayDate, setTodayDate] = useState('')
-  const [todayDayOfWeek, setTodayDayOfWeek] = useState('')
-  const [lessonCount, setLessonCount] = useState(1)
+  const [todayDate, setTodayDate] = useState(savedScreenState.todayDate ?? '')
+  const [todayDayOfWeek, setTodayDayOfWeek] = useState(savedScreenState.todayDayOfWeek ?? '')
+  const [lessonCount, setLessonCount] = useState(savedScreenState.lessonCount ?? 1)
 
-  const [unipaData, setUnipaData] = useState(() => {
-    const saved = localStorage.getItem('isd_manual_attendance')
-    return saved ? JSON.parse(saved) : {}
-  })
+  const [unipaData, setUnipaData] = useState(() => readJsonStorage('isd_manual_attendance', {}))
 
-  const [timetable, setTimetable] = useState(() => {
-    const saved = localStorage.getItem('isd_timetable_data')
-    return saved ? JSON.parse(saved) : { spring: {}, fall: {} }
-  })
+  const [timetable, setTimetable] = useState(() => readJsonStorage('isd_timetable_data', { spring: {}, fall: {} }))
 
   const [grade, setGrade] = useState(() => localStorage.getItem('isd_grade') || '')
+  const [earnedCredits, setEarnedCredits] = useState(() => localStorage.getItem('isd_earned_credits') || '')
+  const [studentId, setStudentId] = useState(() => localStorage.getItem('isd_student_id') || '')
+  const [checkStudentId, setCheckStudentId] = useState('')
+  const [studentIdError, setStudentIdError] = useState('')
   const [mainCourse, setMainCourse] = useState(() => localStorage.getItem('isd_main_course') || '')
   const [subCourse, setSubCourse] = useState(() => localStorage.getItem('isd_sub_course') || '')
+  const [selectedTerm, setSelectedTerm] = useState(() => localStorage.getItem('isd_selected_term') || 'spring')
+  const [missingRequiredCourses, setMissingRequiredCourses] = useState(() => readJsonStorage('isd_missing_required_courses', []))
 
   useEffect(() => { localStorage.setItem('isd_grade', grade) }, [grade])
+  useEffect(() => { localStorage.setItem('isd_earned_credits', earnedCredits) }, [earnedCredits])
+  useEffect(() => { localStorage.setItem('isd_student_id', studentId.trim().toUpperCase()) }, [studentId])
   useEffect(() => { localStorage.setItem('isd_main_course', mainCourse) }, [mainCourse])
   useEffect(() => { localStorage.setItem('isd_sub_course', subCourse) }, [subCourse])
+  useEffect(() => {
+    localStorage.setItem('isd_selected_term', selectedTerm)
+    setSemester(selectedTerm)
+  }, [selectedTerm])
+  useEffect(() => {
+    localStorage.setItem('isd_missing_required_courses', JSON.stringify(missingRequiredCourses))
+  }, [missingRequiredCourses])
   useEffect(() => { localStorage.setItem('isd_timetable_data', JSON.stringify(timetable)) }, [timetable])
   useEffect(() => { localStorage.setItem('isd_manual_attendance', JSON.stringify(unipaData)) }, [unipaData])
+
+  useEffect(() => {
+    sessionStorage.setItem('isd_timetable_screen_state', JSON.stringify({
+      pageMode,
+      editStep,
+      viewStep,
+      simulatedDateTime,
+      activePeriodName,
+      todayDate,
+      todayDayOfWeek,
+      lessonCount,
+    }))
+  }, [pageMode, editStep, viewStep, simulatedDateTime, activePeriodName, todayDate, todayDayOfWeek, lessonCount])
+
+  useEffect(() => {
+    // 復元は「口コミページから戻った1回だけ」にする
+    if (shouldRestoreFromCourse) {
+      sessionStorage.removeItem('isd_restore_timetable_from_course')
+    }
+  }, [])
 
   // 🧮 登録された時間割から現在の合計単位数を計算するロジック
   const calculateRegisteredCredits = () => {
     const currentSemesterTimetable = timetable[semester] || {};
-    let totalCredits = 0;
+    let registeredCredits = 0;
 
     Object.values(currentSemesterTimetable).forEach(cell => {
       if (cell && cell.name) {
-        // 例: 「コンピュータプログラミングⅠ・同演習」のような演習系は本来多めですが、基本は1科目2単位として計算
-        totalCredits += 2; 
+        // 基本は1科目2単位として計算
+        registeredCredits += 2;
       }
     });
 
-    const remainingCredits = GRADUATION_REQUIREMENTS.total - totalCredits;
+    const earned = Number(earnedCredits || 0);
+    const projectedTotal = earned + registeredCredits;
+    const gradeRequirement = GRADE_CREDIT_REQUIREMENTS[grade] || { label: '卒業まで', required: GRADUATION_REQUIREMENTS.total };
+    const remainingForGrade = Math.max(gradeRequirement.required - earned, 0);
+    const remainingAfterRegistration = Math.max(gradeRequirement.required - projectedTotal, 0);
+    const remainingForGraduation = Math.max(GRADUATION_REQUIREMENTS.total - earned, 0);
+
+    // 登録した授業のうち、何単位まで落としても進級・卒業目標を満たせるかを計算
+    // 例：あと20単位必要で24単位登録している場合、4単位までは落としても目標達成、5単位落とすと留年リスク
+    const safeFailCredits = Math.max(registeredCredits - remainingForGrade, 0);
+    const failDangerCredits = registeredCredits > 0
+      ? safeFailCredits + 1
+      : remainingForGrade > 0 ? 1 : 0;
+    const isAlreadyShortAfterRegistration = remainingAfterRegistration > 0;
+
     return {
-      current: totalCredits,
-      remaining: remainingCredits < 0 ? 0 : remainingCredits,
-      percentage: Math.min(Math.round((totalCredits / GRADUATION_REQUIREMENTS.total) * 100), 100)
+      earned,
+      registered: registeredCredits,
+      projectedTotal,
+      gradeTargetLabel: gradeRequirement.label,
+      gradeTarget: gradeRequirement.required,
+      remainingForGrade,
+      remainingAfterRegistration,
+      remainingForGraduation,
+      safeFailCredits,
+      failDangerCredits,
+      isAlreadyShortAfterRegistration,
+      percentage: Math.min(Math.round((earned / gradeRequirement.required) * 100), 100),
+      projectedPercentage: Math.min(Math.round((projectedTotal / gradeRequirement.required) * 100), 100),
     };
   };
 
   const creditStats = calculateRegisteredCredits();
 
-  const checkRegistrationLock = () => {
-    if (!simulatedDateTime) return;
-    const userTime = new Date(simulatedDateTime).getTime();
-    const matchedPeriod = REGISTRATION_PERIODS.find(p => {
-      const startTime = new Date(p.start).getTime();
-      const endTime = new Date(p.end).getTime();
-      return userTime >= startTime && userTime <= endTime;
-    });
+  // 主コースの値が 'd3' でも '知能情報デザイン (d3)' でも判定できるように正規化
+  const normalizedMainCourse =
+    mainCourse.includes('d1') ? 'd1' :
+    mainCourse.includes('d2') ? 'd2' :
+    mainCourse.includes('d3') ? 'd3' :
+    mainCourse.includes('d4') ? 'd4' :
+    mainCourse
 
-    if (matchedPeriod) {
-      setActivePeriodName(matchedPeriod.name);
-      setLockError('');
-      setEditStep('course-select'); 
-    } else {
-      setActivePeriodName('');
-      setLockError('❌ 申し訳ありません。期間外のため履修登録がロックされています。');
-    }
-  };
+  const currentRequiredCourses = REQUIRED_COURSES_BY_COURSE[normalizedMainCourse] || [];
+  const missingCurrentRequiredCourses = missingRequiredCourses.filter((course) =>
+    currentRequiredCourses.includes(course)
+  );
 
   const handleDateChange = (dateString) => {
     setTodayDate(dateString);
@@ -233,7 +470,8 @@ function TimetablePage() {
         defaultHasAttendance = selectedCourse.hasAttendance ?? true;
       }
       
-      const color = selectedCourse ? COURSE_COLORS[selectedCourse.target] || COURSE_COLORS.default : COURSE_COLORS.default;
+      const color = selectedCourse ? getCourseColor(selectedCourse.target, mainCourse) : COURSE_COLORS.default;
+      const colorKey = selectedCourse ? getCourseColorKey(selectedCourse.target, mainCourse) : 'default';
 
       setTimetable(prev => ({
         ...prev,
@@ -243,6 +481,9 @@ function TimetablePage() {
             name: targetValue, 
             color, 
             room: selectedCourse?.room || '',
+            target: selectedCourse?.target || '',
+            type: selectedCourse?.type || '',
+            colorKey,
             hasAttendance: defaultHasAttendance 
           }
         }
@@ -284,48 +525,120 @@ function TimetablePage() {
     setTimeout(() => {
       setSaveMessage('');
       setPageMode(null);
-      setEditStep('date-lock-check');
+      setEditStep('course-select');
     }, 1500);
   }
 
+  const resetToInitialScreen = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    sessionStorage.removeItem('isd_timetable_screen_state');
+    sessionStorage.removeItem('isd_restore_timetable_from_course');
+
+    setPageMode(null);
+    setEditStep('course-select');
+    setViewStep('date-input');
+    setEditingCell(null);
+    setEditValue('');
+    setSaveMessage('');
+    setLockError('');
+    setCheckStudentId('');
+    setStudentIdError('');
+    setSimulatedDateTime('');
+    setActivePeriodName('');
+    setTodayDate('');
+    setTodayDayOfWeek('');
+    setLessonCount(1);
+  }
+
   return (
-    <main className="timetable-page" style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'sans-serif' }}>
+    <main
+      className="timetable-page"
+      onContextMenu={resetToInitialScreen}
+      style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'sans-serif' }}
+    >
       
       {/* 1. 目的の選択 */}
       {pageMode === null && (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
           <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', textAlign: 'center', maxWidth: '450px', width: '100%' }}>
             <h2 style={{ fontSize: '22px', marginBottom: '8px', color: '#333' }}>🔍 目的を選択</h2>
-            <button onClick={() => setPageMode('edit')} style={{ width: '100%', padding: '15px', backgroundColor: '#3498db', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '15px' }}>
-              📝 履修登録をする（新規・編集）
+            <button onClick={() => { setPageMode('edit'); setEditStep('course-select'); }} style={{ width: '100%', padding: '15px', backgroundColor: '#3498db', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '15px' }}>
+              📝 授業登録をする
             </button>
-            <button onClick={() => { setPageMode('view'); setViewStep('date-input'); }} style={{ width: '100%', padding: '15px', backgroundColor: '#1abc9c', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '25px' }}>
+            <button onClick={() => { setPageMode('view'); setViewStep('student-id-check'); setCheckStudentId(''); setStudentIdError('') }} style={{ width: '100%', padding: '15px', backgroundColor: '#1abc9c', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '25px' }}>
               👀 出欠状況・時間割の確認
             </button>
           </div>
         </div>
       )}
 
-      {/* 2. 履修登録：日時確認 */}
-      {pageMode === 'edit' && editStep === 'date-lock-check' && (
+      {/* 2. 時間割確認：学籍番号確認 */}
+      {pageMode === 'view' && viewStep === 'student-id-check' && (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-          <div style={{ backgroundColor: '#fff', padding: '35px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', maxWidth: '480px', width: '100%', textAlign: 'center' }}>
-            <h3 style={{ fontSize: '18px', color: '#2c3e50', marginBottom: '15px' }}>日時確認</h3>
-            <input type="datetime-local" value={simulatedDateTime} onChange={(e) => setSimulatedDateTime(e.target.value)} style={{ width: '85%', padding: '12px', marginBottom: '15px' }} />
-            {lockError && ( <div style={{ color: '#c0392b', marginBottom: '20px' }}>{lockError}</div> )}
+          <div style={{ backgroundColor: '#fff', padding: '35px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', maxWidth: '420px', width: '100%', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '18px', marginBottom: '15px' }}>学籍番号確認</h3>
+            <p style={{ fontSize: '13px', color: '#666', marginBottom: '15px', lineHeight: 1.7 }}>
+              授業登録時に入力した学籍番号を入力してください。
+              一致した場合のみ時間割確認へ進めます。
+            </p>
+
+            <input
+              type="text"
+              value={checkStudentId}
+              onChange={(e) => {
+                setCheckStudentId(e.target.value.toUpperCase())
+                setStudentIdError('')
+              }}
+              placeholder="例：24RD100"
+              style={{ width: '85%', padding: '12px', marginBottom: '15px', textAlign: 'center' }}
+            />
+
+            {studentIdError && (
+              <div style={{ color: '#c0392b', marginBottom: '15px', fontWeight: 'bold', fontSize: '13px' }}>
+                {studentIdError}
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={() => setPageMode(null)} style={{ flex: 1, padding: '12px' }}>戻る</button>
-              <button onClick={checkRegistrationLock} disabled={!simulatedDateTime} style={{ flex: 2, padding: '12px', background: '#3498db', color: 'white' }}>認証する</button>
+              <button onClick={() => { setPageMode(null); setCheckStudentId(''); setStudentIdError('') }} style={{ flex: 1, padding: '12px' }}>
+                戻る
+              </button>
+              <button
+                onClick={() => {
+                  const savedId = studentId.trim().toUpperCase()
+                  const inputId = checkStudentId.trim().toUpperCase()
+
+                  if (!savedId) {
+                    setStudentIdError('先に授業登録で学籍番号を登録してください。')
+                    return
+                  }
+
+                  if (inputId === savedId) {
+                    setStudentIdError('')
+                    setViewStep('date-input')
+                  } else {
+                    setStudentIdError('学籍番号が一致しません。')
+                  }
+                }}
+                disabled={!checkStudentId.trim()}
+                style={{ flex: 2, padding: '12px', background: '#1abc9c', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold' }}
+              >
+                確認する
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 3. 出欠確認：今日の日付入力 */}
+      {/* 2. 出欠確認：今日の日付入力 */}
       {pageMode === 'view' && viewStep === 'date-input' && (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
           <div style={{ backgroundColor: '#fff', padding: '35px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
-            <h3 style={{ fontSize: '18px', marginBottom: '15px' }}>出席基準日を入力してください</h3>
+            <h3 style={{ fontSize: '18px', marginBottom: '15px' }}>検索したい日付を入力してください</h3>
             <input type="date" value={todayDate} onChange={(e) => handleDateChange(e.target.value)} style={{ width: '85%', padding: '12px', marginBottom: '15px', textAlign: 'center' }} />
             {todayDayOfWeek && (
               <div style={{ padding: '12px', background: '#e8f8f5', borderRadius: '8px', marginBottom: '25px' }}>
@@ -340,19 +653,77 @@ function TimetablePage() {
         </div>
       )}
 
-      {/* 4. 履修登録：基本設定 */}
+      {/* 3. 授業登録：基本設定 */}
       {pageMode === 'edit' && editStep === 'course-select' && (
         <div style={{ maxWidth: '500px', margin: '60px auto', background: '#fff', padding: '30px', borderRadius: '12px' }}>
           <h3 style={{ marginBottom: '20px' }}>⚙️ 基本設定</h3>
           <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '6px' }}>学籍番号</label>
+            <input
+              type="text"
+              value={studentId}
+              onChange={(e) => setStudentId(e.target.value.toUpperCase())}
+              placeholder="例：24RD100"
+              style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }}
+            />
+            <div style={{ marginTop: '6px', fontSize: '12px', color: '#7f8c8d' }}>
+              時間割確認時に同じ学籍番号の入力が必要になります。
+            </div>
+          </div>
+          <div style={{ marginBottom: '15px' }}>
             <label style={{ display: 'block', marginBottom: '6px' }}>学年</label>
             <select value={grade} onChange={e => setGrade(e.target.value)} style={{ width: '100%', padding: '10px' }}>
-              <option value="">-- 学年を選択 --</option><option value="2">2年生</option><option value="3">3年生</option>
+              <option value="">-- 学年を選択 --</option>
+              <option value="1">1年生</option>
+              <option value="2">2年生</option>
+              <option value="3">3年生</option>
+              <option value="4">4年生</option>
+            </select>
+          </div>
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '6px' }}>現在までに取得済みの単位数</label>
+            <input
+              type="number"
+              min="0"
+              max="124"
+              value={earnedCredits}
+              onChange={(e) => setEarnedCredits(e.target.value)}
+              placeholder="例：28"
+              style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }}
+            />
+            {grade && earnedCredits !== '' && (
+              <div style={{ marginTop: '10px', padding: '12px', background: '#f8f9fa', borderRadius: '8px', fontSize: '13px', lineHeight: 1.7 }}>
+                <div>目標：<b>{creditStats.gradeTargetLabel}</b> に <b>{creditStats.gradeTarget}</b> 単位</div>
+                <div>現在の取得単位数：<b>{creditStats.earned}</b> 単位</div>
+                <div style={{ color: creditStats.remainingForGrade === 0 ? '#2ecc71' : '#e74c3c', fontWeight: 'bold' }}>
+                  残り必要単位数：{creditStats.remainingForGrade} 単位
+                </div>
+                <div>卒業要件124単位まで：あと <b>{creditStats.remainingForGraduation}</b> 単位</div>
+              </div>
+            )}
+          </div>
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '6px' }}>学期</label>
+            <select
+              value={selectedTerm}
+              onChange={e => setSelectedTerm(e.target.value)}
+              style={{ width: '100%', padding: '10px' }}
+            >
+              <option value="">-- 前期・後期を選択 --</option>
+              <option value="spring">前期</option>
+              <option value="fall">後期</option>
             </select>
           </div>
           <div style={{ marginBottom: '15px' }}>
             <label style={{ display: 'block', marginBottom: '6px' }}>主コース</label>
-            <select value={mainCourse} onChange={e => setMainCourse(e.target.value)} style={{ width: '100%', padding: '10px' }}>
+            <select
+              value={mainCourse}
+              onChange={(e) => {
+                setMainCourse(e.target.value)
+                setMissingRequiredCourses([])
+              }}
+              style={{ width: '100%', padding: '10px' }}
+            >
               <option value="">-- 主コースを選択 --</option>{COURSES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
@@ -363,44 +734,158 @@ function TimetablePage() {
             </select>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => setEditStep('date-lock-check')} style={{ flex: 1, padding: '12px' }}>戻る</button>
-            <button onClick={() => setEditStep('grid')} disabled={!grade || !mainCourse || !subCourse} style={{ flex: 2, padding: '12px', background: '#3498db', color: 'white' }}>時間割登録へ ➔</button>
+            <button onClick={() => { setPageMode(null); setEditStep('course-select'); }} style={{ flex: 1, padding: '12px' }}>戻る</button>
+            <button onClick={() => setEditStep('required-check')} disabled={!studentId.trim() || !grade || earnedCredits === '' || !selectedTerm || !mainCourse || !subCourse} style={{ flex: 2, padding: '12px', background: '#3498db', color: 'white' }}>必修科目確認へ ➔</button>
           </div>
         </div>
       )}
 
-      {/* 5. メイン時間割シート */}
+      {/* 5. 必修科目取得状況確認 */}
+      {pageMode === 'edit' && editStep === 'required-check' && (
+        <div style={{ maxWidth: '650px', margin: '60px auto', background: '#fff', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginBottom: '10px' }}>✅ 未取得の必修科目確認</h3>
+          <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px', lineHeight: 1.7 }}>
+            選択した主コースに対応する必修科目が表示されています。まだ取得していない必修科目にチェックを入れてください。
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {currentRequiredCourses.map((course) => {
+              const checked = missingRequiredCourses.includes(course)
+
+              return (
+                <label
+                  key={course}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '12px',
+                    border: checked ? '2px solid #3498db' : '1px solid #ddd',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    background: checked ? '#ebf5ff' : '#fff',
+                    fontWeight: checked ? 'bold' : 'normal'
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setMissingRequiredCourses((prev) => prev.includes(course) ? prev : [...prev, course])
+                      } else {
+                        setMissingRequiredCourses((prev) => prev.filter((c) => c !== course))
+                      }
+                    }}
+                  />
+                  <span>{course}</span>
+                </label>
+              )
+            })}
+          </div>
+
+          <div style={{ marginTop: '18px', padding: '12px', background: '#f8f9fa', borderRadius: '8px', fontSize: '13px', color: '#555' }}>
+            未取得：<b>{missingCurrentRequiredCourses.length}</b> / {currentRequiredCourses.length} 科目
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', marginTop: '25px' }}>
+            <button onClick={() => setEditStep('course-select')} style={{ flex: 1, padding: '12px' }}>
+              戻る
+            </button>
+            <button
+              onClick={() => setEditStep('grid')}
+              style={{
+                flex: 2,
+                padding: '12px',
+                background: '#3498db',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: 'bold'
+              }}
+            >
+              時間割登録へ ➔
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 6. メイン時間割シート */}
       {((pageMode === 'edit' && editStep === 'grid') || (pageMode === 'view' && viewStep === 'grid')) && (
-        <div className="timetable-container">
+        <div className="timetable-container" onContextMenu={resetToInitialScreen} title="右クリックで初期画面へ戻る">
           
-          {/* 🎓 単位カウンター表示エリア（追加機能） */}
+          {/* 🎓 単位カウンター表示エリア */}
           <div style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '12px', padding: '20px', marginBottom: '25px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', color: '#495057' }}>🎓 卒業要件単位カウンター (目標: {GRADUATION_REQUIREMENTS.total}単位)</h3>
-              <span style={{ fontSize: '14px', fontWeight: 'bold', color: creditStats.remaining === 0 ? '#2ecc71' : '#e74c3c' }}>
-                {creditStats.remaining === 0 ? '🎉 卒業要件クリア！' : `🚨 卒業まであと ${creditStats.remaining} 単位足りません`}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', gap: '12px' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', color: '#495057' }}>🎓 学年別単位カウンター</h3>
+              <span style={{ fontSize: '14px', fontWeight: 'bold', color: creditStats.remainingAfterRegistration === 0 ? '#2ecc71' : '#e74c3c' }}>
+                {creditStats.remainingAfterRegistration === 0
+                  ? `🎉 ${creditStats.gradeTargetLabel} の目標単位を達成見込み！`
+                  : `🚨 ${creditStats.gradeTargetLabel} まであと ${creditStats.remainingAfterRegistration} 単位必要`}
               </span>
             </div>
-            
-            {/* プログレスバー */}
+
             <div style={{ width: '100%', height: '20px', background: '#dee2e6', borderRadius: '10px', overflow: 'hidden', marginBottom: '8px' }}>
-              <div style={{ width: `${creditStats.percentage}%`, height: '100%', background: 'linear-gradient(90deg, #3498db, #2ecc71)', transition: 'width 0.5s ease' }}></div>
+              <div style={{ width: `${creditStats.projectedPercentage}%`, height: '100%', background: 'linear-gradient(90deg, #3498db, #2ecc71)', transition: 'width 0.5s ease' }}></div>
             </div>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#6c757d' }}>
-              <span>現在の登録単位数: <b>{creditStats.current}</b> 単位</span>
-              <span>進捗率: <b>{creditStats.percentage}%</b></span>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', fontSize: '12px', color: '#6c757d' }}>
+              <span>現在の取得単位数: <b>{creditStats.earned}</b> 単位</span>
+              <span>今学期登録予定: <b>{creditStats.registered}</b> 単位</span>
+              <span>登録後の見込み: <b>{creditStats.projectedTotal}</b> 単位</span>
+              <span>{creditStats.gradeTargetLabel}: <b>{creditStats.gradeTarget}</b> 単位</span>
+              <span>卒業124単位まで: <b>{creditStats.remainingForGraduation}</b> 単位</span>
+              <span>進捗率: <b>{creditStats.projectedPercentage}%</b></span>
+            </div>
+
+            <div
+              style={{
+                marginTop: '14px',
+                padding: '14px',
+                borderRadius: '10px',
+                background: creditStats.isAlreadyShortAfterRegistration ? '#fff3cd' : '#ffebee',
+                border: creditStats.isAlreadyShortAfterRegistration ? '1px solid #ffecb5' : '1px solid #ffcdd2',
+                color: creditStats.isAlreadyShortAfterRegistration ? '#7a5d00' : '#b71c1c',
+                fontSize: '13px',
+                fontWeight: 'bold',
+                lineHeight: 1.7
+              }}
+            >
+              {creditStats.registered === 0 ? (
+                <div>⚠️ まだ授業が登録されていません。進級・卒業判定のために授業を登録してください。</div>
+              ) : creditStats.isAlreadyShortAfterRegistration ? (
+                <div>
+                  ⚠️ 登録予定単位をすべて取得しても、{creditStats.gradeTargetLabel} の目標まであと {creditStats.remainingAfterRegistration} 単位不足します。
+                  追加で授業を登録しないと留年リスクがあります。
+                </div>
+              ) : (
+                <div>
+                  ⚠️ 今学期登録した {creditStats.registered} 単位のうち、{creditStats.safeFailCredits} 単位までは落としても目標達成見込みです。
+                  ただし、あと {creditStats.failDangerCredits} 単位落としたらあなたは留年リスクがあります。
+                </div>
+              )}
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '12px' }}>
             <div>
-              <h1 style={{ margin: '5px 0 0 0', fontSize: '24px' }}>📅 時間割メインシート</h1>
+              <h1 style={{ margin: '5px 0 0 0', fontSize: '24px' }}>📅 時間割メインシート（{semester === 'spring' ? '前期' : '後期'}）</h1>
+              <p style={{ margin: '6px 0 0 0', fontSize: '12px', color: '#7f8c8d' }}>右クリック、または右のボタンで初期画面に戻れます。</p>
             </div>
-            <button onClick={() => { setPageMode(null); setEditStep('date-lock-check'); }} style={{ padding: '8px 15px', background: '#7f8c8d', color: 'white', border: 'none', borderRadius: '4px' }}>目的選択へ戻る</button>
+            <button
+              type="button"
+              onClick={resetToInitialScreen}
+              style={{ padding: '8px 15px', background: '#7f8c8d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' }}
+            >
+              初期画面へ戻る
+            </button>
           </div>
 
-          <div className="timetable-grid" style={{ display: 'grid', gridTemplateColumns: '80px repeat(6, 1fr)', gap: '6px', background: '#f5f5f5', padding: '8px', borderRadius: '8px' }}>
+          <div
+            className="timetable-grid"
+            onContextMenu={resetToInitialScreen}
+            style={{ display: 'grid', gridTemplateColumns: '80px repeat(6, 1fr)', gap: '6px', background: '#f5f5f5', padding: '8px', borderRadius: '8px' }}
+          >
             <div style={{ background: '#ddd', borderRadius: '4px' }}></div>
             {DAYS.map(day => {
               const isTodayColumn = pageMode === 'view' && day === todayDayOfWeek;
@@ -414,12 +899,21 @@ function TimetablePage() {
             {PERIODS.map(period => (
               <div key={`row-${period}`} style={{ display: 'contents' }}>
                 <div style={{ background: '#ecf0f1', padding: '10px 4px', textAlign: 'center', borderRadius: '4px' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{period}</div>
+                  <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{period}限目</div>
+                  <div style={{ fontSize: '10px', color: '#555', marginTop: '4px', lineHeight: 1.3 }}>
+                    {PERIOD_TIMES[period]}
+                  </div>
                 </div>
                 
                 {DAYS.map(day => {
                   const key = getCellKey(day, period)
                   const entry = (timetable[semester] || {})[key]
+                  const entryMaster = entry ? COURSE_MASTER.find(c => c.name === entry.name && c.semester === semester) : null
+                  const entryTarget = entryMaster?.target || entry?.target || ''
+                  const entryColorKey = entry ? getCourseColorKey(entryTarget, mainCourse) : 'default'
+                  const entryColor = entry ? getCourseColor(entryTarget, mainCourse) : undefined
+                  const isRequiredCourse = entry ? (entryMaster?.type === '必修' || entry?.type === '必修') : false
+                  const cellBackground = isRequiredCourse ? '#FFCDD2' : entryColor
                   const isEditing = editingCell === key
                   const availableCourses = getFilteredCourses(day, period);
                   
@@ -427,19 +921,23 @@ function TimetablePage() {
                   const isNoAttendanceCourse = entry && noAttendanceCourses.includes(entry.name);
                   const hasAttendance = isNoAttendanceCourse ? false : (entry?.hasAttendance ?? true);
 
-                  const attStats = entry ? calculateAttendanceRate(entry.name) : null;
                   const isTodayCell = pageMode === 'view' && day === todayDayOfWeek;
 
                   return (
                     <div key={key} className={`timetable-cell timetable-cell--body ${entry ? 'timetable-cell--filled' : ''}`}
                       style={{
-                        '--cell-color': entry?.color,
+                        '--cell-color': cellBackground,
+                        background: cellBackground,
                         border: isTodayCell ? '3px solid #f1c40f' : undefined,
                         cursor: pageMode === 'edit' ? 'pointer' : 'default',
                         minHeight: '130px',
                         position: 'relative'
                       }}
-                      onClick={() => !isEditing && handleCellClick(day, period)}
+                     onClick={() => {
+  if (pageMode === 'edit' && !isEditing) {
+    handleCellClick(day, period)
+  }
+}}
                     >
                       {isEditing ? (
                         <select value={editValue} onChange={e => { setEditValue(e.target.value); handleSaveCell(e.target.value); }} onBlur={() => handleSaveCell(editValue)} autoFocus style={{ width: '100%', padding: '4px', fontSize: '11px' }}>
@@ -450,15 +948,76 @@ function TimetablePage() {
                       ) : entry ? (
                         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', width: '100%' }}>
                           <div>
-                            <Link 
-                              to={`/course/${encodeURIComponent(entry.name)}`} 
-                              className="timetable-cell-name" 
-                              style={{ textDecoration: 'none', color: 'inherit', fontWeight: 'bold' }}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {entry.name}
-                            </Link>
-                            
+<Link
+  to={`/course/${encodeURIComponent(entry.name)}`}
+  className="timetable-cell-name"
+  style={{
+    textDecoration: 'none',
+    color: 'inherit',
+    fontWeight: 'bold',
+    display: 'block',
+    width: '100%'
+  }}
+  onClick={(e) => {
+    e.stopPropagation()
+    sessionStorage.setItem('isd_restore_timetable_from_course', 'true')
+    sessionStorage.setItem('isd_timetable_screen_state', JSON.stringify({
+      pageMode,
+      editStep,
+      viewStep,
+      simulatedDateTime,
+      activePeriodName,
+      todayDate,
+      todayDayOfWeek,
+      lessonCount,
+    }))
+  }}
+>
+  {entry.name}
+
+  <div
+    style={{
+      fontSize: '9px',
+      color: '#00796b',
+      marginTop: '4px'
+    }}
+  >
+    口コミを見る →
+  </div>
+</Link>
+                            {entry && (
+                              <div
+                                style={{
+                                  display: 'inline-block',
+                                  marginTop: '4px',
+                                  padding: '1px 6px',
+                                  borderRadius: '999px',
+                                  background: 'rgba(255,255,255,0.75)',
+                                  fontSize: '9px',
+                                  fontWeight: 'bold',
+                                  color: '#555'
+                                }}
+                              >
+                                {COURSE_LABELS[entryColorKey] || COURSE_LABELS.default}
+                              </div>
+                            )}
+                            {isRequiredCourse && (
+                              <div
+                                style={{
+                                  display: 'inline-block',
+                                  marginTop: '4px',
+                                  marginLeft: '4px',
+                                  padding: '1px 6px',
+                                  borderRadius: '999px',
+                                  background: '#c62828',
+                                  color: 'white',
+                                  fontSize: '9px',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                必修
+                              </div>
+                            )}
                             {pageMode === 'edit' && (
                               <button 
                                 onClick={(e) => toggleAttendanceTarget(key, e)}
@@ -476,27 +1035,6 @@ function TimetablePage() {
                             )}
                           </div>
                           
-                          {/* 確認モード（view） */}
-                          {pageMode === 'view' && (
-                            hasAttendance ? (
-                              <div style={{ background: 'rgba(255,255,255,0.9)', padding: '4px 2px', borderRadius: '4px', display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '4px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', fontWeight: 'bold' }}>
-                                  <span style={{ color: attStats.rate < 75 ? '#D32F2F' : '#2E7D32' }}>📊 {attStats.rate}%</span>
-                                  <span style={{ color: '#555' }}>{attStats.attends}出-{attStats.absents}欠</span>
-                                </div>
-                                <div style={{ display: 'flex', gap: '2px' }} onClick={e => e.stopPropagation()}>
-                                  <button onClick={(e) => handleCountAttendance(entry.name, 'absents', 'plus', e)} style={{ flex: 1, fontSize: '8px', background: '#FFEBEE', color: '#c62828' }}>欠</button>
-                                  <button onClick={(e) => handleCountAttendance(entry.name, 'lates', 'plus', e)} style={{ flex: 1, fontSize: '8px', background: '#FFF3E0', color: '#ef6c00' }}>遅</button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div style={{ background: '#f2f4f4', border: '1px dashed #bdc3c7', padding: '12px 2px', borderRadius: '4px', marginTop: 'auto', textAlign: 'center' }}>
-                                <div style={{ fontSize: '9px', color: '#7f8c8d', fontWeight: 'bold', lineHeight: '1.2' }}>
-                                  🔇 出席評価は<br />ありません
-                                </div>
-                              </div>
-                            )
-                          )}
                         </div>
                       ) : (pageMode === 'edit' && availableCourses.length > 0) ? (
                         <span className="timetable-cell-placeholder">+</span>
