@@ -189,6 +189,24 @@ export default function CoursePage() {
               <span className="cp-detail-label">教室</span>
               <span className="cp-detail-value">{syllabus.classroom}</span>
             </div>
+            {syllabus.grade && (
+              <div className="cp-detail-item">
+                <span className="cp-detail-label">配当学年</span>
+                <span className="cp-detail-value">{syllabus.grade}年</span>
+              </div>
+            )}
+            {syllabus.requirement && (
+              <div className="cp-detail-item">
+                <span className="cp-detail-label">必選区分</span>
+                <span className="cp-detail-value">{syllabus.requirement}</span>
+              </div>
+            )}
+            {syllabus.courseCategory && (
+              <div className="cp-detail-item">
+                <span className="cp-detail-label">コース区分</span>
+                <span className="cp-detail-value">{syllabus.courseCategory}</span>
+              </div>
+            )}
             <div className="cp-detail-item cp-detail-item--full">
               <span className="cp-detail-label">教科書</span>
               <span className="cp-detail-value">{syllabus.textbook}</span>
