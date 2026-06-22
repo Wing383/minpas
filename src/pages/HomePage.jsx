@@ -12,9 +12,7 @@ const DIFFICULTY_OPTIONS = [
   { stars: 5, label: 'かなり簡単' },
 ]
 
-const FACULTIES = [
-  'システムデザイン工学部', '未来科学部', '工学部', '工学部第二部', '理工学部', '情報環境学部',
-]
+
 
 function StarRating({ count }) {
   return (
@@ -120,7 +118,7 @@ function CourseResultCard({ course, index }) {
 
 // ---- メインコンポーネント ----
 function HomePage() {
-  const [activeTab, setActiveTab] = useState('course')
+
   const [courseName, setCourseName] = useState('')
   const [teacherName, setTeacherName] = useState('')
   const [selectedDifficulties, setSelectedDifficulties] = useState([])
@@ -172,14 +170,8 @@ function HomePage() {
               <h2>授業評価・楽単情報を探す</h2>
             </div>
             <div className="search-body">
-              {/* Tabs */}
-              <div className="search-tabs">
-                <button id="tab-course" className={`search-tab ${activeTab === 'course' ? 'search-tab--active' : ''}`} onClick={() => setActiveTab('course')}>授業名から探す</button>
-                <button id="tab-faculty" className={`search-tab ${activeTab === 'faculty' ? 'search-tab--active' : ''}`} onClick={() => setActiveTab('faculty')}>学部学科から探す</button>
-              </div>
 
-              {activeTab === 'course' ? (
-                <>
+
                   <div className="form-group">
                     <label className="form-label" htmlFor="input-course">授業名</label>
                     <AutocompleteInput id="input-course" placeholder="授業名を入力" value={courseName} onChange={setCourseName} suggestions={COURSE_NAMES} />
@@ -231,28 +223,8 @@ function HomePage() {
                           </select>
                         </div>
                       </div>
-                      <div className="advanced-row">
-                        <div className="advanced-field">
-                          <label className="advanced-label" htmlFor="select-faculty">学部</label>
-                          <select id="select-faculty" className="advanced-select" value={selectedFaculty} onChange={(e) => setSelectedFaculty(e.target.value)}>
-                            <option value="">すべて</option>
-                            {FACULTIES.map((f) => (<option key={f} value={f}>{f}</option>))}
-                          </select>
-                        </div>
-                      </div>
                     </div>
                   </div>
-                </>
-              ) : (
-                <div className="faculty-search">
-                  <p style={{ color: 'var(--text-light)', marginBottom: 12, fontSize: 14 }}>学部を選択してください</p>
-                  <div className="faculty-grid">
-                    {FACULTIES.map((f) => (
-                      <button key={f} className="faculty-btn" onClick={() => console.log(f)}>{f}</button>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               <div className="search-btn-wrapper">
                 <button id="btn-search" className="search-btn" onClick={handleSearch}>検索結果を見る</button>
