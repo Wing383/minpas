@@ -5,6 +5,9 @@ import HomePage from './pages/HomePage.jsx'
 import TimetablePage from './pages/TimetablePage.jsx'
 import ReviewsPage from './pages/ReviewsPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
+import TermsPage from './pages/TermsPage.jsx'
+import PrivacyPage from './pages/PrivacyPage.jsx'
+import ContactPage from './pages/ContactPage.jsx'
 import CoursePage from './components/CoursePage.jsx'
 import BottomNav from './components/BottomNav.jsx'
 import './App.css'
@@ -20,7 +23,7 @@ function App() {
         <header className="header">
           <div className="header-inner">
             <Link to="/" className="logo">
-              <div className="logo-icon">電</div>
+              <img className="logo-icon" src="/favicon.png" alt="みんパス" />
               <div className="logo-text">
                 <span className="logo-title">みんパス</span>
                 <span className="logo-subtitle">東京電機大学</span>
@@ -98,6 +101,9 @@ function App() {
           <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/course/:id" element={<CoursePage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Routes>
 
         <BottomNav />

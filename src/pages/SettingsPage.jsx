@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import { Link } from 'react-router-dom'
 import '../pages-styles/SettingsPage.css'
 
 function SettingsPage() {
@@ -82,20 +83,20 @@ function SettingsPage() {
         <div className="settings-section">
           <h2 className="settings-section-title">情報</h2>
           <div className="settings-card">
-            <div className="settings-row settings-row--link">
+            <Link to="/terms" className="settings-row settings-row--link">
               <span className="settings-row-label">📄 利用規約</span>
               <span className="settings-row-arrow">›</span>
-            </div>
+            </Link>
             <div className="settings-divider" />
-            <div className="settings-row settings-row--link">
+            <Link to="/privacy" className="settings-row settings-row--link">
               <span className="settings-row-label">🔒 プライバシーポリシー</span>
               <span className="settings-row-arrow">›</span>
-            </div>
+            </Link>
             <div className="settings-divider" />
-            <div className="settings-row settings-row--link">
+            <Link to="/contact" className="settings-row settings-row--link">
               <span className="settings-row-label">📧 お問い合わせ</span>
               <span className="settings-row-arrow">›</span>
-            </div>
+            </Link>
             <div className="settings-divider" />
             <div className="settings-row">
               <span className="settings-row-label">📱 バージョン</span>
