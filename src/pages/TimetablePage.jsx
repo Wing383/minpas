@@ -89,6 +89,29 @@ const COURSES = [
   { id: 'd4', name: 'アミューズメントデザイン (d4)' },
 ];
 
+
+// 📊 コース別単位要件
+// 画像の学生便覧に合わせて、主コースは18/26単位、副コースは5/8単位で判定します。
+// ※副コースが他学系の場合は 9/14 単位に変更してください。
+const COURSE_CREDIT_META = {
+  d1: { icon: '💻', name: 'コンピュータソフトウェア', theme: '#3498db' },
+  d2: { icon: '🗄️', name: '情報システム', theme: '#27ae60' },
+  d3: { icon: '🧠', name: '知能情報デザイン', theme: '#f1c40f' },
+  d4: { icon: '🎮', name: 'アミューズメントデザイン', theme: '#e84393' },
+}
+
+const COURSE_ROLE_REQUIREMENTS = {
+  main: { label: '主コース', thirdYear: 18, graduation: 26 },
+  sub: { label: '副コース', thirdYear: 5, graduation: 8 },
+}
+
+const COURSE_CREDIT_INITIAL = {
+  d1: '',
+  d2: '',
+  d3: '',
+  d4: '',
+}
+
 const COURSE_MASTER = [
   // 🗓️ 月曜日
   { day: "月", period: 2, name: "動的システム", teacher: "小河 誠巳", room: "6101", semester: 'spring', target: "d2", grade: 2, type: "選択", hasAttendance: true },
@@ -295,6 +318,7 @@ function TimetablePage() {
 
   const [grade, setGrade] = useState(() => localStorage.getItem('isd_grade') || '')
   const [earnedCredits, setEarnedCredits] = useState(() => localStorage.getItem('isd_earned_credits') || '')
+  const [courseEarnedCredits, setCourseEarnedCredits] = useState(() => readJsonStorage('isd_course_earned_credits', COURSE_CREDIT_INITIAL))
   const [studentId, setStudentId] = useState(() => localStorage.getItem('isd_student_id') || '')
   const [checkStudentId, setCheckStudentId] = useState('')
   const [studentIdError, setStudentIdError] = useState('')
@@ -384,6 +408,66 @@ function TimetablePage() {
 
   const creditStats = calculateRegisteredCredits();
 
+
+  const clampPercent = (value) => Math.max(0, Math.min(Math.round(value), 100));
+
+  const calculateRegisteredCreditsByCourse = (courseId) => {
+    const currentSemesterTimetable = timetable[semester] || {};
+    let registeredCredits = 0;
+
+    Object.values(currentSemesterTimetable).forEach((cell) => {
+      if (!cell || !cell.name) return;
+      const targetText = String(cell.target || '');
+      if (targetText.includes(courseId)) {
+        registeredCredits += 2;
+      }
+    });
+
+    return registeredCredits;
+  };
+
+  const getSelectedCourseCreditItems = () => {
+    const mainId = normalizeCourseId(mainCourse);
+    const subId = normalizeCourseId(subCourse);
+    const items = [];
+
+    if (COURSE_CREDIT_META[mainId]) {
+      items.push({ courseId: mainId, role: 'main' });
+    }
+
+    if (COURSE_CREDIT_META[subId] && subId !== mainId) {
+      items.push({ courseId: subId, role: 'sub' });
+    }
+
+    return items;
+  };
+
+  const courseCreditStats = getSelectedCourseCreditItems().map(({ courseId, role }) => {
+    const meta = COURSE_CREDIT_META[courseId];
+    const requirement = COURSE_ROLE_REQUIREMENTS[role];
+    const earned = Number(courseEarnedCredits?.[courseId] || 0);
+    const registered = calculateRegisteredCreditsByCourse(courseId);
+    const projectedTotal = earned + registered;
+    const thirdYearRemaining = Math.max(requirement.thirdYear - projectedTotal, 0);
+    const graduationRemaining = Math.max(requirement.graduation - projectedTotal, 0);
+
+    return {
+      id: courseId,
+      role,
+      roleLabel: requirement.label,
+      ...meta,
+      earned,
+      registered,
+      projectedTotal,
+      thirdYear: requirement.thirdYear,
+      graduation: requirement.graduation,
+      thirdYearRemaining,
+      graduationRemaining,
+      thirdYearPercent: clampPercent((projectedTotal / requirement.thirdYear) * 100),
+      graduationPercent: clampPercent((projectedTotal / requirement.graduation) * 100),
+    };
+  });
+
   // 主コースの値が 'd3' でも '知能情報デザイン (d3)' でも判定できるように正規化
   const normalizedMainCourse =
     mainCourse.includes('d1') ? 'd1' :
@@ -436,6 +520,30 @@ function TimetablePage() {
     const safeAttends = attends < 0 ? 0 : attends;
     const rate = total === 0 ? 100 : Math.round((safeAttends / total) * 100);
     return { attends: safeAttends, absents: data.absents, lates: data.lates, rate: rate };
+  };
+
+
+
+  const getTodayLessons = () => {
+    if (!todayDayOfWeek) return [];
+
+    const currentSemesterTimetable = timetable[semester] || {};
+
+    return Object.entries(currentSemesterTimetable)
+      .filter(([key, entry]) => {
+        const [day] = key.split('-');
+        return day === todayDayOfWeek && entry;
+      })
+      .map(([key, entry]) => {
+        const [, period] = key.split('-');
+
+        return {
+          ...entry,
+          period: Number(period),
+          time: PERIOD_TIMES[Number(period)]
+        };
+      })
+      .sort((a, b) => a.period - b.period);
   };
 
   const getCellKey = (day, period) => `${day}-${period}`
@@ -641,8 +749,59 @@ function TimetablePage() {
             <h3 style={{ fontSize: '18px', marginBottom: '15px' }}>検索したい日付を入力してください</h3>
             <input type="date" value={todayDate} onChange={(e) => handleDateChange(e.target.value)} style={{ width: '85%', padding: '12px', marginBottom: '15px', textAlign: 'center' }} />
             {todayDayOfWeek && (
-              <div style={{ padding: '12px', background: '#e8f8f5', borderRadius: '8px', marginBottom: '25px' }}>
-                <div>🗓️ 判定結果: <b>{todayDayOfWeek}曜日</b> (第 {lessonCount} 回目)</div>
+              <div
+                style={{
+                  padding: '12px',
+                  background: '#e8f8f5',
+                  borderRadius: '8px',
+                  marginBottom: '25px'
+                }}
+              >
+                <div style={{ marginBottom: '10px' }}>
+                  🗓️ <b>{todayDayOfWeek}曜日</b>
+                </div>
+
+                {getTodayLessons().length > 0 ? (
+                  <>
+                    <div
+                      style={{
+                        fontWeight: 'bold',
+                        marginBottom: '8px',
+                        color: '#27ae60'
+                      }}
+                    >
+                      🔔 この日の授業
+                    </div>
+
+                    {getTodayLessons().map((lesson) => (
+                      <div
+                        key={`${lesson.name}-${lesson.period}`}
+                        style={{
+                          background: '#fff',
+                          borderRadius: '8px',
+                          padding: '10px',
+                          marginBottom: '8px',
+                          textAlign: 'left',
+                          fontSize: '13px'
+                        }}
+                      >
+                        <div style={{ fontWeight: 'bold' }}>
+                          {lesson.period}限目
+                        </div>
+                        <div style={{ color: '#666' }}>
+                          {lesson.time}
+                        </div>
+                        <div style={{ marginTop: '5px' }}>
+                          {lesson.name}
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <div style={{ color: '#666' }}>
+                    この日に授業はありません
+                  </div>
+                )}
               </div>
             )}
             <div style={{ display: 'flex', gap: '10px' }}>
@@ -702,6 +861,65 @@ function TimetablePage() {
               </div>
             )}
           </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+              選択コース別の取得済み単位数
+            </label>
+
+            {courseCreditStats.length === 0 ? (
+              <div style={{ padding: '12px', background: '#fff3cd', borderRadius: '10px', color: '#856404', fontSize: '13px' }}>
+                主コースと副コースを選択すると、必要な単位数に合わせて入力欄が表示されます。
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: '10px'
+                }}
+              >
+                {courseCreditStats.map((course) => (
+                  <div
+                    key={`${course.role}-${course.id}`}
+                    style={{
+                      border: `1px solid ${course.theme}55`,
+                      background: `${course.theme}10`,
+                      borderRadius: '12px',
+                      padding: '12px'
+                    }}
+                  >
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
+                      {course.icon} {course.roleLabel}：{course.id} {course.name}
+                    </div>
+                    <div style={{ marginBottom: '8px', fontSize: '11px', color: '#666' }}>
+                      3年次目標 {course.thirdYear}単位 / 卒業 {course.graduation}単位
+                    </div>
+                    <input
+                      type="number"
+                      min="0"
+                      max="124"
+                      value={courseEarnedCredits?.[course.id] || ''}
+                      onChange={(e) => {
+                        setCourseEarnedCredits((prev) => ({
+                          ...prev,
+                          [course.id]: e.target.value
+                        }))
+                      }}
+                      placeholder="例：10"
+                      style={{
+                        width: '100%',
+                        padding: '9px',
+                        borderRadius: '8px',
+                        border: '1px solid #dcdde1',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div style={{ marginBottom: '15px' }}>
             <label style={{ display: 'block', marginBottom: '6px' }}>学期</label>
             <select
@@ -815,34 +1033,50 @@ function TimetablePage() {
         <div className="timetable-container" onContextMenu={resetToInitialScreen} title="右クリックで初期画面へ戻る">
           
           {/* 🎓 単位カウンター表示エリア */}
-          <div style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '12px', padding: '20px', marginBottom: '25px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', gap: '12px' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', color: '#495057' }}>🎓 学年別単位カウンター</h3>
-              <span style={{ fontSize: '14px', fontWeight: 'bold', color: creditStats.remainingAfterRegistration === 0 ? '#2ecc71' : '#e74c3c' }}>
+          <div
+            style={{
+              background: '#fff',
+              border: '1px solid #e9ecef',
+              borderRadius: '16px',
+              padding: '20px',
+              marginBottom: '22px',
+              boxShadow: '0 6px 18px rgba(0,0,0,0.06)'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', gap: '12px' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', color: '#2c3e50' }}>🎓 全体の単位進捗</h3>
+              <span style={{ fontSize: '15px', fontWeight: 'bold', color: creditStats.remainingAfterRegistration === 0 ? '#27ae60' : '#e74c3c' }}>
                 {creditStats.remainingAfterRegistration === 0
-                  ? `🎉 ${creditStats.gradeTargetLabel} の目標単位を達成見込み！`
+                  ? `🎉 ${creditStats.gradeTargetLabel} 達成見込み`
                   : `🚨 ${creditStats.gradeTargetLabel} まであと ${creditStats.remainingAfterRegistration} 単位必要`}
               </span>
             </div>
 
-            <div style={{ width: '100%', height: '20px', background: '#dee2e6', borderRadius: '10px', overflow: 'hidden', marginBottom: '8px' }}>
-              <div style={{ width: `${creditStats.projectedPercentage}%`, height: '100%', background: 'linear-gradient(90deg, #3498db, #2ecc71)', transition: 'width 0.5s ease' }}></div>
+            <div style={{ width: '100%', height: '22px', background: '#dee2e6', borderRadius: '999px', overflow: 'hidden', marginBottom: '14px' }}>
+              <div
+                style={{
+                  width: `${creditStats.projectedPercentage}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #3498db, #2ecc71)',
+                  transition: 'width 0.5s ease'
+                }}
+              />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', fontSize: '12px', color: '#6c757d' }}>
-              <span>現在の取得単位数: <b>{creditStats.earned}</b> 単位</span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '10px', fontSize: '13px', color: '#495057' }}>
+              <span>取得済み: <b>{creditStats.earned}</b> 単位</span>
               <span>今学期登録予定: <b>{creditStats.registered}</b> 単位</span>
-              <span>登録後の見込み: <b>{creditStats.projectedTotal}</b> 単位</span>
+              <span>登録後見込み: <b>{creditStats.projectedTotal}</b> 単位</span>
               <span>{creditStats.gradeTargetLabel}: <b>{creditStats.gradeTarget}</b> 単位</span>
-              <span>卒業124単位まで: <b>{creditStats.remainingForGraduation}</b> 単位</span>
+              <span>卒業まで: <b>{creditStats.remainingForGraduation}</b> 単位</span>
               <span>進捗率: <b>{creditStats.projectedPercentage}%</b></span>
             </div>
 
             <div
               style={{
-                marginTop: '14px',
+                marginTop: '16px',
                 padding: '14px',
-                borderRadius: '10px',
+                borderRadius: '12px',
                 background: creditStats.isAlreadyShortAfterRegistration ? '#fff3cd' : '#ffebee',
                 border: creditStats.isAlreadyShortAfterRegistration ? '1px solid #ffecb5' : '1px solid #ffcdd2',
                 color: creditStats.isAlreadyShortAfterRegistration ? '#7a5d00' : '#b71c1c',
@@ -866,6 +1100,116 @@ function TimetablePage() {
               )}
             </div>
           </div>
+
+          {/* 📊 選択コース別単位進捗 */}
+          {courseCreditStats.length > 0 && (
+            <div
+              style={{
+                background: '#fff',
+                border: '1px solid #e9ecef',
+                borderRadius: '16px',
+                padding: '20px',
+                marginBottom: '25px',
+                boxShadow: '0 6px 18px rgba(0,0,0,0.06)'
+              }}
+            >
+              <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', color: '#2c3e50' }}>👥 選択コース別の単位進捗</h3>
+              <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#666' }}>
+                主コースは 3年次まで18単位・卒業まで26単位、副コースは 3年次まで5単位・卒業まで8単位として表示しています。
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+                {courseCreditStats.map((course) => (
+                  <div
+                    key={`${course.role}-${course.id}`}
+                    style={{
+                      border: `1px solid ${course.theme}55`,
+                      borderRadius: '16px',
+                      overflow: 'hidden',
+                      background: `${course.theme}10`
+                    }}
+                  >
+                    <div style={{ textAlign: 'center', padding: '14px', borderBottom: `1px solid ${course.theme}55`, background: 'rgba(255,255,255,0.65)' }}>
+                      <div style={{ fontSize: '22px' }}>{course.icon}</div>
+                      <div style={{ fontWeight: 'bold', fontSize: '17px' }}>{course.roleLabel}：{course.id}</div>
+                      <div style={{ fontSize: '13px' }}>{course.name}</div>
+                    </div>
+
+                    <div style={{ padding: '14px' }}>
+                      <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+                        取得＋登録見込み: {course.projectedTotal} 単位
+                      </div>
+
+                      <div style={{ width: '100%', height: '16px', background: '#e1e5ea', borderRadius: '999px', overflow: 'hidden', marginBottom: '10px' }}>
+                        <div
+                          style={{
+                            width: `${course.thirdYearPercent}%`,
+                            height: '100%',
+                            background: 'linear-gradient(90deg, #3498db, #2ecc71)'
+                          }}
+                        />
+                      </div>
+
+                      <div style={{ fontSize: '13px', lineHeight: 1.8 }}>
+                        <div>3年次までの目標: <b>{course.thirdYear}</b> 単位</div>
+                        <div>3年次進捗率: <b>{course.thirdYearPercent}%</b></div>
+                        <hr style={{ border: 'none', borderTop: '1px dashed #d0d7de', margin: '10px 0' }} />
+                        <div>卒業までの目標: <b>{course.graduation}</b> 単位</div>
+                        <div>卒業進捗率: <b>{course.graduationPercent}%</b></div>
+                      </div>
+
+                      <div
+                        style={{
+                          marginTop: '12px',
+                          padding: '10px',
+                          borderRadius: '10px',
+                          background: 'rgba(255,255,255,0.75)',
+                          fontSize: '13px',
+                          lineHeight: 1.8
+                        }}
+                      >
+                        <div>3年次進級まであと <b>{course.thirdYearRemaining}</b> 単位必要</div>
+                        <div>卒業まであと <b>{course.graduationRemaining}</b> 単位必要</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ marginTop: '18px', border: '1px solid #dfe6e9', borderRadius: '12px', overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: '760px' }}>
+                  <thead>
+                    <tr style={{ background: '#f1f3f5' }}>
+                      <th style={{ padding: '10px', textAlign: 'left' }}>区分</th>
+                      <th style={{ padding: '10px', textAlign: 'left' }}>コース</th>
+                      <th style={{ padding: '10px' }}>3年次目標</th>
+                      <th style={{ padding: '10px' }}>取得＋登録</th>
+                      <th style={{ padding: '10px' }}>3年次進捗</th>
+                      <th style={{ padding: '10px' }}>卒業目標</th>
+                      <th style={{ padding: '10px' }}>卒業進捗</th>
+                      <th style={{ padding: '10px' }}>卒業まであと</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {courseCreditStats.map((course) => (
+                      <tr key={`row-${course.role}-${course.id}`} style={{ borderTop: '1px solid #e9ecef' }}>
+                        <td style={{ padding: '10px', fontWeight: 'bold', textAlign: 'center' }}>{course.roleLabel}</td>
+                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{course.id}　{course.name}</td>
+                        <td style={{ padding: '10px', textAlign: 'center' }}>{course.thirdYear} 単位</td>
+                        <td style={{ padding: '10px', textAlign: 'center' }}>{course.projectedTotal} 単位</td>
+                        <td style={{ padding: '10px', textAlign: 'center' }}>{course.thirdYearPercent}%</td>
+                        <td style={{ padding: '10px', textAlign: 'center' }}>{course.graduation} 単位</td>
+                        <td style={{ padding: '10px', textAlign: 'center' }}>{course.graduationPercent}%</td>
+                        <td style={{ padding: '10px', textAlign: 'center', color: course.graduationRemaining === 0 ? '#27ae60' : '#e74c3c', fontWeight: 'bold' }}>
+                          {course.graduationRemaining} 単位
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '12px' }}>
             <div>
