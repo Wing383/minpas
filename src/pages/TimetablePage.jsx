@@ -662,6 +662,131 @@ function TimetablePage() {
     setLessonCount(1);
   }
 
+
+  const renderCreditNumberLine = ({ title, max, ticks, current, targetLabel }) => {
+    const safeMax = max || 1;
+    const markerPercent = Math.max(0, Math.min((current / safeMax) * 100, 100));
+
+    return (
+      <div
+        style={{
+          marginTop: '18px',
+          padding: '16px',
+          background: '#f8fbff',
+          border: '1px solid #dbeafe',
+          borderRadius: '14px'
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '10px',
+            marginBottom: '22px'
+          }}
+        >
+          <div style={{ fontWeight: 'bold', color: '#2c3e50' }}>{title}</div>
+          <div style={{ fontSize: '12px', color: '#555' }}>
+            登録後見込み：<b>{current}</b> 単位
+          </div>
+        </div>
+
+        <div style={{ position: 'relative', height: '54px', margin: '0 8px' }}>
+          <div
+            style={{
+              position: 'absolute',
+              top: '22px',
+              left: 0,
+              right: 0,
+              height: '6px',
+              borderRadius: '999px',
+              background: '#dfe6e9'
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: '22px',
+              left: 0,
+              width: `${markerPercent}%`,
+              height: '6px',
+              borderRadius: '999px',
+              background: 'linear-gradient(90deg, #3498db, #2ecc71)'
+            }}
+          />
+
+          {ticks.map((tick) => {
+            const left = Math.max(0, Math.min((tick / safeMax) * 100, 100));
+            const isGoal = tick === max;
+            return (
+              <div
+                key={`${title}-${tick}`}
+                style={{
+                  position: 'absolute',
+                  left: `${left}%`,
+                  top: '12px',
+                  transform: 'translateX(-50%)',
+                  textAlign: 'center'
+                }}
+              >
+                <div
+                  style={{
+                    width: isGoal ? '3px' : '2px',
+                    height: isGoal ? '24px' : '18px',
+                    background: isGoal ? '#e74c3c' : '#2c3e50',
+                    margin: '0 auto'
+                  }}
+                />
+                <div
+                  style={{
+                    marginTop: '4px',
+                    fontSize: '11px',
+                    fontWeight: isGoal ? 'bold' : 'normal',
+                    color: isGoal ? '#e74c3c' : '#555',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {tick}
+                </div>
+              </div>
+            );
+          })}
+
+          <div
+            style={{
+              position: 'absolute',
+              left: `${markerPercent}%`,
+              top: '-6px',
+              transform: 'translateX(-50%)',
+              textAlign: 'center',
+              zIndex: 2
+            }}
+          >
+            <div style={{ fontSize: '18px', lineHeight: 1 }}>▼</div>
+            <div
+              style={{
+                fontSize: '11px',
+                fontWeight: 'bold',
+                background: '#2c3e50',
+                color: 'white',
+                borderRadius: '999px',
+                padding: '2px 8px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {current}単位
+            </div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+          🎯 {targetLabel}：<b>{max}</b> 単位
+        </div>
+      </div>
+    );
+  };
+
   return (
     <main
       className="timetable-page"
@@ -1070,6 +1195,23 @@ function TimetablePage() {
               <span>{creditStats.gradeTargetLabel}: <b>{creditStats.gradeTarget}</b> 単位</span>
               <span>卒業まで: <b>{creditStats.remainingForGraduation}</b> 単位</span>
               <span>進捗率: <b>{creditStats.projectedPercentage}%</b></span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginTop: '16px' }}>
+              {renderCreditNumberLine({
+                title: '進級目標までの位置',
+                max: creditStats.gradeTarget,
+                ticks: creditStats.gradeTarget <= 30 ? [0, 10, 20, 30] : [0, 30, 60, 90, creditStats.gradeTarget],
+                current: creditStats.projectedTotal,
+                targetLabel: creditStats.gradeTargetLabel
+              })}
+              {renderCreditNumberLine({
+                title: '卒業要件までの位置',
+                max: 124,
+                ticks: [0, 30, 60, 90, 124],
+                current: creditStats.projectedTotal,
+                targetLabel: '卒業要件'
+              })}
             </div>
 
             <div
