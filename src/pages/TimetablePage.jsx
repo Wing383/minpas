@@ -342,6 +342,23 @@ function TimetablePage() {
   useEffect(() => { localStorage.setItem('isd_timetable_data', JSON.stringify(timetable)) }, [timetable])
   useEffect(() => { localStorage.setItem('isd_manual_attendance', JSON.stringify(unipaData)) }, [unipaData])
 
+  // 1年生を選択した場合は、以前の学年で入力した取得単位・コース情報を残さない
+  useEffect(() => {
+    if (grade === '1') {
+      setEarnedCredits('0')
+      setCourseEarnedCredits(COURSE_CREDIT_INITIAL)
+      setMainCourse('')
+      setSubCourse('')
+      setMissingRequiredCourses([])
+
+      localStorage.setItem('isd_earned_credits', '0')
+      localStorage.setItem('isd_course_earned_credits', JSON.stringify(COURSE_CREDIT_INITIAL))
+      localStorage.removeItem('isd_main_course')
+      localStorage.removeItem('isd_sub_course')
+      localStorage.setItem('isd_missing_required_courses', JSON.stringify([]))
+    }
+  }, [grade])
+
   useEffect(() => {
     sessionStorage.setItem('isd_timetable_screen_state', JSON.stringify({
       pageMode,
@@ -374,7 +391,8 @@ function TimetablePage() {
       }
     });
 
-    const earned = Number(earnedCredits || 0);
+    // 1年生は前年度取得単位がない前提なので、過去に保存された値が残っていても0単位として扱う
+    const earned = grade === '1' ? 0 : Number(earnedCredits || 0);
     const projectedTotal = earned + registeredCredits;
     const gradeRequirement = GRADE_CREDIT_REQUIREMENTS[grade] || { label: '卒業まで', required: GRADUATION_REQUIREMENTS.total };
     const remainingForGrade = Math.max(gradeRequirement.required - earned, 0);
@@ -445,8 +463,8 @@ function TimetablePage() {
   const courseCreditStats = getSelectedCourseCreditItems().map(({ courseId, role }) => {
     const meta = COURSE_CREDIT_META[courseId];
     const requirement = COURSE_ROLE_REQUIREMENTS[role];
-    const earned = Number(courseEarnedCredits?.[courseId] || 0);
-    const registered = calculateRegisteredCreditsByCourse(courseId);
+    const earned = grade === '1' ? 0 : Number(courseEarnedCredits?.[courseId] || 0);
+    const registered = grade === '1' ? 0 : calculateRegisteredCreditsByCourse(courseId);
     const projectedTotal = earned + registered;
     const thirdYearRemaining = Math.max(requirement.thirdYear - projectedTotal, 0);
     const graduationRemaining = Math.max(requirement.graduation - projectedTotal, 0);
@@ -663,9 +681,13 @@ function TimetablePage() {
   }
 
 
-  const renderCreditNumberLine = ({ title, max, ticks, current, targetLabel }) => {
+  const renderCreditNumberLine = ({ title, max, ticks, beforeCurrent, current, targetLabel }) => {
     const safeMax = max || 1;
-    const markerPercent = Math.max(0, Math.min((current / safeMax) * 100, 100));
+    const beforeValue = Number(beforeCurrent || 0);
+    const currentValue = Number(current || 0);
+    const beforePercent = Math.max(0, Math.min((beforeValue / safeMax) * 100, 100));
+    const currentPercent = Math.max(0, Math.min((currentValue / safeMax) * 100, 100));
+    const markersOverlap = Math.abs(beforePercent - currentPercent) < 6;
 
     return (
       <div
@@ -683,20 +705,22 @@ function TimetablePage() {
             justifyContent: 'space-between',
             alignItems: 'center',
             gap: '10px',
-            marginBottom: '22px'
+            marginBottom: '28px',
+            flexWrap: 'wrap'
           }}
         >
           <div style={{ fontWeight: 'bold', color: '#2c3e50' }}>{title}</div>
-          <div style={{ fontSize: '12px', color: '#555' }}>
-            登録後見込み：<b>{current}</b> 単位
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', fontSize: '12px', color: '#555' }}>
+            <span>履修前：<b>{beforeValue}</b> 単位</span>
+            <span>登録後見込み：<b>{currentValue}</b> 単位</span>
           </div>
         </div>
 
-        <div style={{ position: 'relative', height: '54px', margin: '0 8px' }}>
+        <div style={{ position: 'relative', height: markersOverlap ? '86px' : '74px', margin: '0 8px' }}>
           <div
             style={{
               position: 'absolute',
-              top: '22px',
+              top: '32px',
               left: 0,
               right: 0,
               height: '6px',
@@ -707,12 +731,24 @@ function TimetablePage() {
           <div
             style={{
               position: 'absolute',
-              top: '22px',
+              top: '32px',
               left: 0,
-              width: `${markerPercent}%`,
+              width: `${beforePercent}%`,
               height: '6px',
               borderRadius: '999px',
-              background: 'linear-gradient(90deg, #3498db, #2ecc71)'
+              background: '#74b9ff'
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: '32px',
+              left: 0,
+              width: `${currentPercent}%`,
+              height: '6px',
+              borderRadius: '999px',
+              background: 'linear-gradient(90deg, #3498db, #2ecc71)',
+              opacity: 0.9
             }}
           />
 
@@ -725,7 +761,7 @@ function TimetablePage() {
                 style={{
                   position: 'absolute',
                   left: `${left}%`,
-                  top: '12px',
+                  top: '22px',
                   transform: 'translateX(-50%)',
                   textAlign: 'center'
                 }}
@@ -753,17 +789,45 @@ function TimetablePage() {
             );
           })}
 
+          {/* 履修前の単位数マーカー */}
           <div
             style={{
               position: 'absolute',
-              left: `${markerPercent}%`,
-              top: '-6px',
+              left: `${beforePercent}%`,
+              top: markersOverlap ? '4px' : '2px',
               transform: 'translateX(-50%)',
               textAlign: 'center',
-              zIndex: 2
+              zIndex: 3
             }}
           >
-            <div style={{ fontSize: '18px', lineHeight: 1 }}>▼</div>
+            <div style={{ fontSize: '16px', lineHeight: 1, color: '#0984e3' }}>◆</div>
+            <div
+              style={{
+                fontSize: '11px',
+                fontWeight: 'bold',
+                background: '#0984e3',
+                color: 'white',
+                borderRadius: '999px',
+                padding: '2px 8px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              履修前 {beforeValue}単位
+            </div>
+          </div>
+
+          {/* 今学期登録後の見込み単位数マーカー */}
+          <div
+            style={{
+              position: 'absolute',
+              left: `${currentPercent}%`,
+              top: markersOverlap ? '42px' : '-18px',
+              transform: 'translateX(-50%)',
+              textAlign: 'center',
+              zIndex: 4
+            }}
+          >
+            <div style={{ fontSize: '18px', lineHeight: 1, color: '#2c3e50' }}>▼</div>
             <div
               style={{
                 fontSize: '11px',
@@ -775,13 +839,24 @@ function TimetablePage() {
                 whiteSpace: 'nowrap'
               }}
             >
-              {current}単位
+              登録後 {currentValue}単位
             </div>
           </div>
         </div>
 
-        <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
-          🎯 {targetLabel}：<b>{max}</b> 単位
+        <div
+          style={{
+            marginTop: '10px',
+            display: 'flex',
+            gap: '12px',
+            flexWrap: 'wrap',
+            fontSize: '12px',
+            color: '#666'
+          }}
+        >
+          <span>🔵 履修前：<b>{beforeValue}</b> 単位</span>
+          <span>⚫ 登録後：<b>{currentValue}</b> 単位</span>
+          <span>🎯 {targetLabel}：<b>{max}</b> 単位</span>
         </div>
       </div>
     );
@@ -799,7 +874,34 @@ function TimetablePage() {
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
           <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', textAlign: 'center', maxWidth: '450px', width: '100%' }}>
             <h2 style={{ fontSize: '22px', marginBottom: '8px', color: '#333' }}>🔍 目的を選択</h2>
-            <button onClick={() => { setPageMode('edit'); setEditStep('course-select'); }} style={{ width: '100%', padding: '15px', backgroundColor: '#3498db', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '15px' }}>
+            <button
+              onClick={() => {
+                const hasRegisteredCourses =
+                  Object.keys(timetable.spring || {}).length > 0 ||
+                  Object.keys(timetable.fall || {}).length > 0;
+
+                if (hasRegisteredCourses) {
+                  const reset = window.confirm(
+                    '前回登録した授業をすべて削除して、新しく登録しますか？\n\nOK：削除して新規登録\nキャンセル：前回の登録を残して編集'
+                  );
+
+                  if (reset) {
+                    const emptyTimetable = { spring: {}, fall: {} };
+                    setTimetable(emptyTimetable);
+                    setUnipaData({});
+                    localStorage.setItem('isd_timetable_data', JSON.stringify(emptyTimetable));
+                    localStorage.setItem('isd_manual_attendance', JSON.stringify({}));
+                  }
+                }
+
+                setPageMode('edit');
+                setEditStep('course-select');
+                setEditingCell(null);
+                setEditValue('');
+                setSaveMessage('');
+              }}
+              style={{ width: '100%', padding: '15px', backgroundColor: '#3498db', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '15px' }}
+            >
               📝 授業登録をする
             </button>
             <button onClick={() => { setPageMode('view'); setViewStep('student-id-check'); setCheckStudentId(''); setStudentIdError('') }} style={{ width: '100%', padding: '15px', backgroundColor: '#1abc9c', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '25px' }}>
@@ -939,146 +1041,251 @@ function TimetablePage() {
 
       {/* 3. 授業登録：基本設定 */}
       {pageMode === 'edit' && editStep === 'course-select' && (
-        <div style={{ maxWidth: '500px', margin: '60px auto', background: '#fff', padding: '30px', borderRadius: '12px' }}>
-          <h3 style={{ marginBottom: '20px' }}>⚙️ 基本設定</h3>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '6px' }}>学籍番号</label>
-            <input
-              type="text"
-              value={studentId}
-              onChange={(e) => setStudentId(e.target.value.toUpperCase())}
-              placeholder="例：24RD100"
-              style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }}
-            />
-            <div style={{ marginTop: '6px', fontSize: '12px', color: '#7f8c8d' }}>
-              時間割確認時に同じ学籍番号の入力が必要になります。
+        <div
+          style={{
+            maxWidth: '820px',
+            margin: '50px auto',
+            background: '#fff',
+            padding: '34px',
+            borderRadius: '20px',
+            boxShadow: '0 12px 30px rgba(0,0,0,0.08)'
+          }}
+        >
+          <div style={{ marginBottom: '24px' }}>
+            <h3 style={{ margin: 0, fontSize: '22px', color: '#2c3e50' }}>⚙️ 基本設定</h3>
+            <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#7f8c8d', lineHeight: 1.7 }}>
+              1年生はコース配属前のため、学籍番号と学年のみで時間割登録へ進めます。2年生以上は取得単位数とコース情報を入力してください。
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+              gap: '18px',
+              marginBottom: '18px'
+            }}
+          >
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#2c3e50' }}>学籍番号</label>
+              <input
+                type="text"
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value.toUpperCase())}
+                placeholder="例：24RD100"
+                style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #dcdde1', boxSizing: 'border-box', fontSize: '15px' }}
+              />
+              <div style={{ marginTop: '6px', fontSize: '12px', color: '#7f8c8d' }}>
+                時間割確認時に同じ学籍番号の入力が必要です。
+              </div>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#2c3e50' }}>学年</label>
+              <select
+                value={grade}
+                onChange={(e) => {
+                  const newGrade = e.target.value
+                  setGrade(newGrade)
+
+                  if (newGrade === '1') {
+                    setEarnedCredits('0')
+                    setCourseEarnedCredits(COURSE_CREDIT_INITIAL)
+                    setMainCourse('')
+                    setSubCourse('')
+                    setMissingRequiredCourses([])
+
+                    localStorage.setItem('isd_earned_credits', '0')
+                    localStorage.setItem('isd_course_earned_credits', JSON.stringify(COURSE_CREDIT_INITIAL))
+                    localStorage.removeItem('isd_main_course')
+                    localStorage.removeItem('isd_sub_course')
+                    localStorage.setItem('isd_missing_required_courses', JSON.stringify([]))
+                  }
+                }}
+                style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #dcdde1', boxSizing: 'border-box', fontSize: '15px', background: '#fff' }}
+              >
+                <option value="">-- 学年を選択 --</option>
+                <option value="1">1年生</option>
+                <option value="2">2年生</option>
+                <option value="3">3年生</option>
+                <option value="4">4年生</option>
+              </select>
             </div>
           </div>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '6px' }}>学年</label>
-            <select value={grade} onChange={e => setGrade(e.target.value)} style={{ width: '100%', padding: '10px' }}>
-              <option value="">-- 学年を選択 --</option>
-              <option value="1">1年生</option>
-              <option value="2">2年生</option>
-              <option value="3">3年生</option>
-              <option value="4">4年生</option>
-            </select>
-          </div>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '6px' }}>現在までに取得済みの単位数</label>
-            <input
-              type="number"
-              min="0"
-              max="124"
-              value={earnedCredits}
-              onChange={(e) => setEarnedCredits(e.target.value)}
-              placeholder="例：28"
-              style={{ width: '100%', padding: '10px', boxSizing: 'border-box' }}
-            />
-            {grade && earnedCredits !== '' && (
-              <div style={{ marginTop: '10px', padding: '12px', background: '#f8f9fa', borderRadius: '8px', fontSize: '13px', lineHeight: 1.7 }}>
-                <div>目標：<b>{creditStats.gradeTargetLabel}</b> に <b>{creditStats.gradeTarget}</b> 単位</div>
-                <div>現在の取得単位数：<b>{creditStats.earned}</b> 単位</div>
-                <div style={{ color: creditStats.remainingForGrade === 0 ? '#2ecc71' : '#e74c3c', fontWeight: 'bold' }}>
-                  残り必要単位数：{creditStats.remainingForGrade} 単位
-                </div>
-                <div>卒業要件124単位まで：あと <b>{creditStats.remainingForGraduation}</b> 単位</div>
-              </div>
-            )}
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-              選択コース別の取得済み単位数
-            </label>
 
-            {courseCreditStats.length === 0 ? (
-              <div style={{ padding: '12px', background: '#fff3cd', borderRadius: '10px', color: '#856404', fontSize: '13px' }}>
-                主コースと副コースを選択すると、必要な単位数に合わせて入力欄が表示されます。
+          {grade === '1' && (
+            <div
+              style={{
+                marginTop: '18px',
+                padding: '16px',
+                background: '#e8f8ef',
+                border: '1px solid #b7ebc6',
+                borderRadius: '14px',
+                color: '#137333',
+                fontWeight: 'bold',
+                lineHeight: 1.8
+              }}
+            >
+              🌱 1年生はコース配属前のため、取得済み単位数・主コース・副コースの入力は表示していません。
+              前期／後期は次の時間割登録画面で切り替えできます。
+            </div>
+          )}
+
+          {grade && grade !== '1' && (
+            <>
+              <div style={{ marginTop: '22px', marginBottom: '18px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#2c3e50' }}>現在までに取得済みの単位数</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="124"
+                  value={earnedCredits}
+                  onChange={(e) => setEarnedCredits(e.target.value)}
+                  placeholder="例：75"
+                  style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #dcdde1', boxSizing: 'border-box', fontSize: '15px' }}
+                />
+                {earnedCredits !== '' && (
+                  <div style={{ marginTop: '12px', padding: '14px', background: '#f8f9fa', borderRadius: '12px', fontSize: '13px', lineHeight: 1.8 }}>
+                    <div>目標：<b>{creditStats.gradeTargetLabel}</b> に <b>{creditStats.gradeTarget}</b> 単位</div>
+                    <div>現在の取得単位数：<b>{creditStats.earned}</b> 単位</div>
+                    <div style={{ color: creditStats.remainingForGrade === 0 ? '#2ecc71' : '#e74c3c', fontWeight: 'bold' }}>
+                      残り必要単位数：{creditStats.remainingForGrade} 単位
+                    </div>
+                    <div>卒業要件124単位まで：あと <b>{creditStats.remainingForGraduation}</b> 単位</div>
+                  </div>
+                )}
               </div>
-            ) : (
+
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                  gap: '10px'
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                  gap: '18px',
+                  marginBottom: '22px'
                 }}
               >
-                {courseCreditStats.map((course) => (
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#2c3e50' }}>主コース</label>
+                  <select
+                    value={mainCourse}
+                    onChange={(e) => {
+                      setMainCourse(e.target.value)
+                      setMissingRequiredCourses([])
+                    }}
+                    style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #dcdde1', boxSizing: 'border-box', fontSize: '15px', background: '#fff' }}
+                  >
+                    <option value="">-- 主コースを選択 --</option>
+                    {COURSES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#2c3e50' }}>副コース</label>
+                  <select
+                    value={subCourse}
+                    onChange={(e) => setSubCourse(e.target.value)}
+                    style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #dcdde1', boxSizing: 'border-box', fontSize: '15px', background: '#fff' }}
+                  >
+                    <option value="">-- 副コースを選択 --</option>
+                    {COURSES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '18px', marginBottom: '14px', color: '#2c3e50' }}>📊 コース別単位入力</h3>
+
+                {courseCreditStats.length === 0 ? (
+                  <div style={{ padding: '14px', background: '#fff3cd', borderRadius: '12px', color: '#856404', fontSize: '13px' }}>
+                    主コースと副コースを選択すると、必要な単位数に合わせて入力欄が表示されます。
+                  </div>
+                ) : (
                   <div
-                    key={`${course.role}-${course.id}`}
                     style={{
-                      border: `1px solid ${course.theme}55`,
-                      background: `${course.theme}10`,
-                      borderRadius: '12px',
-                      padding: '12px'
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                      gap: '14px'
                     }}
                   >
-                    <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>
-                      {course.icon} {course.roleLabel}：{course.id} {course.name}
-                    </div>
-                    <div style={{ marginBottom: '8px', fontSize: '11px', color: '#666' }}>
-                      3年次目標 {course.thirdYear}単位 / 卒業 {course.graduation}単位
-                    </div>
-                    <input
-                      type="number"
-                      min="0"
-                      max="124"
-                      value={courseEarnedCredits?.[course.id] || ''}
-                      onChange={(e) => {
-                        setCourseEarnedCredits((prev) => ({
-                          ...prev,
-                          [course.id]: e.target.value
-                        }))
-                      }}
-                      placeholder="例：10"
-                      style={{
-                        width: '100%',
-                        padding: '9px',
-                        borderRadius: '8px',
-                        border: '1px solid #dcdde1',
-                        boxSizing: 'border-box'
-                      }}
-                    />
+                    {courseCreditStats.map((course) => (
+                      <div
+                        key={`${course.role}-${course.id}`}
+                        style={{
+                          background: '#fff',
+                          border: `2px solid ${course.theme}55`,
+                          borderRadius: '16px',
+                          padding: '18px',
+                          boxShadow: '0 6px 18px rgba(0,0,0,0.06)'
+                        }}
+                      >
+                        <div style={{ fontSize: '24px', marginBottom: '6px' }}>{course.icon}</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '4px' }}>{course.roleLabel}</div>
+                        <div style={{ color: '#2c3e50', fontWeight: 'bold', marginBottom: '8px' }}>{course.id} {course.name}</div>
+                        <div style={{ fontSize: '13px', color: '#666', marginBottom: '12px' }}>
+                          3年次目標：{course.thirdYear}単位 ／ 卒業目標：{course.graduation}単位
+                        </div>
+                        <input
+                          type="number"
+                          min="0"
+                          max="124"
+                          value={courseEarnedCredits?.[course.id] || ''}
+                          onChange={(e) => {
+                            setCourseEarnedCredits((prev) => ({
+                              ...prev,
+                              [course.id]: e.target.value
+                            }))
+                          }}
+                          placeholder="取得済み単位数を入力"
+                          style={{
+                            width: '100%',
+                            padding: '12px',
+                            borderRadius: '10px',
+                            border: '1px solid #ddd',
+                            fontSize: '14px',
+                            boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
 
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '6px' }}>学期</label>
-            <select
-              value={selectedTerm}
-              onChange={e => setSelectedTerm(e.target.value)}
-              style={{ width: '100%', padding: '10px' }}
+          <div style={{ display: 'flex', gap: '14px', marginTop: '30px' }}>
+            <button
+              onClick={() => { setPageMode(null); setEditStep('course-select'); }}
+              style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid #bdc3c7', background: '#fff', fontWeight: 'bold' }}
             >
-              <option value="">-- 前期・後期を選択 --</option>
-              <option value="spring">前期</option>
-              <option value="fall">後期</option>
-            </select>
-          </div>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '6px' }}>主コース</label>
-            <select
-              value={mainCourse}
-              onChange={(e) => {
-                setMainCourse(e.target.value)
-                setMissingRequiredCourses([])
+              戻る
+            </button>
+            <button
+              onClick={() => {
+                if (grade === '1') {
+                  setEditStep('grid')
+                } else {
+                  setEditStep('required-check')
+                }
               }}
-              style={{ width: '100%', padding: '10px' }}
+              disabled={
+                !studentId.trim() ||
+                !grade ||
+                (grade !== '1' && (!earnedCredits.trim() || !mainCourse || !subCourse))
+              }
+              style={{
+                flex: 2,
+                padding: '14px',
+                borderRadius: '12px',
+                border: 'none',
+                background: (!studentId.trim() || !grade || (grade !== '1' && (!earnedCredits.trim() || !mainCourse || !subCourse))) ? '#bdc3c7' : '#3498db',
+                color: 'white',
+                fontWeight: 'bold',
+                cursor: (!studentId.trim() || !grade || (grade !== '1' && (!earnedCredits.trim() || !mainCourse || !subCourse))) ? 'not-allowed' : 'pointer'
+              }}
             >
-              <option value="">-- 主コースを選択 --</option>{COURSES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
-          <div style={{ marginBottom: '25px' }}>
-            <label style={{ display: 'block', marginBottom: '6px' }}>副コース</label>
-            <select value={subCourse} onChange={e => setSubCourse(e.target.value)} style={{ width: '100%', padding: '10px' }}>
-              <option value="">-- 副コースを選択 --</option>{COURSES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => { setPageMode(null); setEditStep('course-select'); }} style={{ flex: 1, padding: '12px' }}>戻る</button>
-            <button onClick={() => setEditStep('required-check')} disabled={!studentId.trim() || !grade || earnedCredits === '' || !selectedTerm || !mainCourse || !subCourse} style={{ flex: 2, padding: '12px', background: '#3498db', color: 'white' }}>必修科目確認へ ➔</button>
+              {grade === '1' ? '時間割登録へ ➔' : '必修科目確認へ ➔'}
+            </button>
           </div>
         </div>
       )}
@@ -1202,6 +1409,7 @@ function TimetablePage() {
                 title: '進級目標までの位置',
                 max: creditStats.gradeTarget,
                 ticks: creditStats.gradeTarget <= 30 ? [0, 10, 20, 30] : [0, 30, 60, 90, creditStats.gradeTarget],
+                beforeCurrent: creditStats.earned,
                 current: creditStats.projectedTotal,
                 targetLabel: creditStats.gradeTargetLabel
               })}
@@ -1209,6 +1417,7 @@ function TimetablePage() {
                 title: '卒業要件までの位置',
                 max: 124,
                 ticks: [0, 30, 60, 90, 124],
+                beforeCurrent: creditStats.earned,
                 current: creditStats.projectedTotal,
                 targetLabel: '卒業要件'
               })}
@@ -1353,17 +1562,64 @@ function TimetablePage() {
             </div>
           )}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', gap: '12px', flexWrap: 'wrap' }}>
             <div>
-              <h1 style={{ margin: '5px 0 0 0', fontSize: '24px' }}>📅 時間割メインシート（{semester === 'spring' ? '前期' : '後期'}）</h1>
-              <p style={{ margin: '6px 0 0 0', fontSize: '12px', color: '#7f8c8d' }}>右クリック、または右のボタンで初期画面に戻れます。</p>
+              <h1 style={{ margin: '5px 0 0 0', fontSize: '24px' }}>📅 時間割メインシート</h1>
+              <p style={{ margin: '6px 0 0 0', fontSize: '12px', color: '#7f8c8d' }}>
+                ここで前期・後期を切り替えて授業を登録できます。
+              </p>
             </div>
             <button
               type="button"
               onClick={resetToInitialScreen}
-              style={{ padding: '8px 15px', background: '#7f8c8d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' }}
+              style={{ padding: '9px 16px', background: '#7f8c8d', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: 'bold' }}
             >
               初期画面へ戻る
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '10px',
+              marginBottom: '18px',
+              background: '#eef3f7',
+              padding: '8px',
+              borderRadius: '14px'
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedTerm('spring')}
+              style={{
+                padding: '13px',
+                borderRadius: '10px',
+                border: semester === 'spring' ? '2px solid #00796b' : '1px solid transparent',
+                background: semester === 'spring' ? '#00796b' : '#fff',
+                color: semester === 'spring' ? '#fff' : '#2c3e50',
+                fontWeight: 'bold',
+                fontSize: '15px',
+                cursor: 'pointer'
+              }}
+            >
+              前期
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedTerm('fall')}
+              style={{
+                padding: '13px',
+                borderRadius: '10px',
+                border: semester === 'fall' ? '2px solid #00796b' : '1px solid transparent',
+                background: semester === 'fall' ? '#00796b' : '#fff',
+                color: semester === 'fall' ? '#fff' : '#2c3e50',
+                fontWeight: 'bold',
+                fontSize: '15px',
+                cursor: 'pointer'
+              }}
+            >
+              後期
             </button>
           </div>
 
