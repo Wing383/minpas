@@ -139,15 +139,35 @@ function HomePage() {
     const teacherQ = teacherName.trim().replace(/\s/g, '')
 
     const results = ALL_COURSES.filter((c) => {
+      // 授業名
       const nameMatch = nameQ === '' || c.name.replace(/\s/g, '').includes(nameQ)
+      // 先生名
       const teacherMatch = teacherQ === '' || c.teachers.some((t) => t.replace(/\s/g, '').includes(teacherQ))
-      return nameMatch && teacherMatch
+
+      // 楽単度（MOCK_COURSESのavgEasyで判定）
+      let difficultyMatch = true
+      if (selectedDifficulties.length > 0) {
+        const mock = MOCK_COURSES.find((m) => m.name === c.name)
+        if (!mock) {
+          difficultyMatch = false // レビューがない科目は楽単度不明なので除外
+        } else {
+          difficultyMatch = selectedDifficulties.includes(Math.round(mock.avgEasy))
+        }
+      }
+
+      // 開講年度
+      const yearMatch = selectedYear === '' || c.year === Number(selectedYear)
+
+      // 開講学期
+      const semesterMatch = selectedSemester === '' || c.semester === selectedSemester
+
+      return nameMatch && teacherMatch && difficultyMatch && yearMatch && semesterMatch
     })
 
     setSearchResults(results)
   }
 
-  const hasQuery = courseName.trim() !== '' || teacherName.trim() !== ''
+  const hasQuery = courseName.trim() !== '' || teacherName.trim() !== '' || selectedDifficulties.length > 0 || selectedYear !== '' || selectedSemester !== ''
 
   return (
     <>

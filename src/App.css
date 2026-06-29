@@ -28,15 +28,8 @@
 .logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 20px;
-  font-weight: 800;
-  box-shadow: 0 2px 8px rgba(0, 121, 107, 0.3);
+  object-fit: cover;
 }
 
 .logo-text {
