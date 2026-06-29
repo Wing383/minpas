@@ -1,0 +1,17 @@
+{
+  "name": "みんパス - 東京電機大学 授業評価・楽単情報",
+  "short_name": "みんパス",
+  "description": "東京電機大学の授業評価・楽単情報を検索できるサイト",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
